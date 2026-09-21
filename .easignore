@@ -1,9 +1,10 @@
-# Keep EAS upload lean — only ship the app
+# Ship only what the lite app needs
 node_modules/
 .expo/
 dist/
 web-build/
-docs/
 .git/
-*.md
 .vscode/
+docs/
+*.md
+scripts/
