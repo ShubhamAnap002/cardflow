@@ -123,7 +123,7 @@ export default function GroupsScreen() {
                 key={group.id}
                 group={group}
                 count={countInGroup(contacts, group.name)}
-                onPress={() => router.push(`/(tabs)/contacts?group=${encodeURIComponent(group.name)}`)}
+                onPress={() => router.navigate(`/contacts?group=${encodeURIComponent(group.name)}`)}
                 onLongPress={() => onDelete(group.id, group.name)}
               />
             ))

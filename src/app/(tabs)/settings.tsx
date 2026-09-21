@@ -178,7 +178,7 @@ export default function SettingsScreen() {
             icon="folder_shared"
             label="Manage groups"
             hint="Create, browse and delete groups."
-            onPress={() => router.push('/(tabs)/groups')}
+            onPress={() => router.navigate('/groups')}
           />
           <Row
             icon="file_upload"

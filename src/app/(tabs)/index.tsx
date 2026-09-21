@@ -33,7 +33,7 @@ export default function HomeScreen() {
         title="Dashboard"
         profile={{ initials: initialsOf(profile.name), uri: profile.avatarUri }}
         onProfile={() => router.push('/profile')}
-        onSettings={() => router.push('/(tabs)/settings')}
+        onSettings={() => router.navigate('/settings')}
       />
 
       <ScreenBody tabBar>
@@ -75,19 +75,19 @@ export default function HomeScreen() {
             label="Contacts"
             icon="contacts"
             tint={colors.secondary}
-            onPress={() => router.push('/(tabs)/contacts')}
+            onPress={() => router.navigate('/contacts')}
           />
           <QuickAction
             label="Favorites"
             icon="star"
             tint="#F59E0B"
-            onPress={() => router.push('/(tabs)/contacts?filter=favorites')}
+            onPress={() => router.navigate('/contacts?filter=favorites')}
           />
           <QuickAction
             label="Groups"
             icon="folder_shared"
             tint={colors.tertiary}
-            onPress={() => router.push('/(tabs)/groups')}
+            onPress={() => router.navigate('/groups')}
           />
         </View>
 
@@ -96,7 +96,7 @@ export default function HomeScreen() {
             value={String(stats.total)}
             label="Total contacts"
             icon="contacts"
-            onPress={() => router.push('/(tabs)/contacts')}
+            onPress={() => router.navigate('/contacts')}
           />
           <StatTile
             value={String(stats.thisMonth)}
@@ -109,14 +109,14 @@ export default function HomeScreen() {
             label="Needs review"
             icon="error"
             tint={stats.needsReview > 0 ? colors.error : colors.tertiary}
-            onPress={() => router.push('/(tabs)/contacts?filter=review')}
+            onPress={() => router.navigate('/contacts?filter=review')}
           />
         </View>
 
         <Section
           title="Recent batches"
           action={contacts.length > 0 ? 'See all' : undefined}
-          onAction={() => router.push('/(tabs)/contacts')}
+          onAction={() => router.navigate('/contacts')}
         >
           {batches.length === 0 ? (
             <EmptyState
@@ -130,7 +130,7 @@ export default function HomeScreen() {
                 key={batch.key}
                 accessibilityRole="button"
                 accessibilityLabel={`${batch.label} batch, ${batch.count} cards`}
-                onPress={() => router.push('/(tabs)/contacts')}
+                onPress={() => router.navigate('/contacts')}
                 style={({ pressed }) => [styles.batch, pressed && styles.batchPressed]}
               >
                 <View style={styles.stack}>
