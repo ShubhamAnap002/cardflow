@@ -2,13 +2,21 @@
   "expo": {
     "name": "CardFlow",
     "slug": "CardFlow",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cardflow",
     "userInterfaceStyle": "light",
     "android": {
       "package": "com.shubhamanap.cardflow",
+      "versionCode": 2,
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES",
+        "READ_EXTERNAL_STORAGE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
