@@ -1,17 +1,11 @@
 import { useEffect, useRef } from 'react';
-import {
-  ActivityIndicator,
-  Animated,
-  Easing,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Icon, type IconName } from '@/components/icon';
+import { colors, radii, spacing, type } from '@/constants/theme';
 
 type Props = {
-  visible: boolean;
   busy?: boolean;
   onClose: () => void;
   onCamera: () => void;
@@ -19,7 +13,7 @@ type Props = {
 };
 
 type OptionProps = {
-  glyph: string;
+  icon: IconName;
   tint: string;
   title: string;
   subtitle: string;
@@ -27,7 +21,7 @@ type OptionProps = {
   onPress: () => void;
 };
 
-function Option({ glyph, tint, title, subtitle, disabled, onPress }: OptionProps) {
+function Option({ icon, tint, title, subtitle, disabled, onPress }: OptionProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -40,85 +34,83 @@ function Option({ glyph, tint, title, subtitle, disabled, onPress }: OptionProps
         disabled && styles.optionDisabled,
       ]}
     >
-      <View style={[styles.optionIcon, { backgroundColor: tint }]}>
-        <Text style={styles.optionGlyph}>{glyph}</Text>
+      <View style={[styles.optionIcon, { backgroundColor: `${tint}1F` }]}>
+        <Icon name={icon} size={22} color={tint} />
       </View>
       <View style={styles.optionCopy}>
         <Text style={styles.optionTitle}>{title}</Text>
         <Text style={styles.optionSub}>{subtitle}</Text>
       </View>
-      <Text style={styles.chevron}>›</Text>
+      <Icon name="chevron_right" size={22} color={colors.outline} />
     </Pressable>
   );
 }
 
-export function ScanSourceSheet({ visible, busy, onClose, onCamera, onGallery }: Props) {
+/** Bottom sheet rendered inside the transparent `/scan` route. */
+export function ScanSourceSheet({ busy, onClose, onCamera, onGallery }: Props) {
+  const insets = useSafeAreaInsets();
   const slide = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.timing(slide, {
-      toValue: visible ? 1 : 0,
-      duration: visible ? 220 : 150,
-      easing: visible ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
+      toValue: 1,
+      duration: 220,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [slide, visible]);
+  }, [slide]);
 
-  const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [360, 0] });
+  const translateY = slide.interpolate({ inputRange: [0, 1], outputRange: [380, 0] });
 
   return (
-    <Modal visible={visible} animationType="none" transparent onRequestClose={onClose}>
-      <View style={styles.root}>
-        <Animated.View style={[styles.backdrop, { opacity: slide }]}>
-          <Pressable
-            accessibilityLabel="Dismiss"
-            style={StyleSheet.absoluteFill}
-            onPress={busy ? undefined : onClose}
-          />
-        </Animated.View>
+    <View style={styles.root}>
+      <Animated.View style={[styles.backdrop, { opacity: slide }]}>
+        <Pressable
+          accessibilityLabel="Dismiss"
+          style={StyleSheet.absoluteFill}
+          onPress={busy ? undefined : onClose}
+        />
+      </Animated.View>
 
-        <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
-          <View style={styles.handle} />
+      <Animated.View
+        style={[
+          styles.sheet,
+          { paddingBottom: insets.bottom + spacing.lg, transform: [{ translateY }] },
+        ]}
+      >
+        <View style={styles.handle} />
+        <Text style={styles.title}>Scan a business card</Text>
+        <Text style={styles.sub}>
+          Lay the card flat and fill the frame — CardFlow reads the details for you.
+        </Text>
 
-          <Text style={styles.title}>Scan a business card</Text>
-          <Text style={styles.sub}>
-            Lay the card flat and fill the frame — CardFlow reads the details for you.
-          </Text>
+        <Option
+          icon="photo_camera"
+          tint={colors.primary}
+          title="Take a photo"
+          subtitle="Use the camera to capture a card"
+          disabled={busy}
+          onPress={onCamera}
+        />
+        <Option
+          icon="photo_library"
+          tint={colors.tertiary}
+          title="Choose from gallery"
+          subtitle="Import a card you already photographed"
+          disabled={busy}
+          onPress={onGallery}
+        />
 
-          <Option
-            glyph="📷"
-            tint="#DBEAFE"
-            title="Take a photo"
-            subtitle="Use the camera to capture a card"
-            disabled={busy}
-            onPress={onCamera}
-          />
-          <Option
-            glyph="🖼️"
-            tint="#DCFCE7"
-            title="Choose from gallery"
-            subtitle="Import a card you already photographed"
-            disabled={busy}
-            onPress={onGallery}
-          />
-
-          {busy ? (
-            <View style={styles.busy}>
-              <ActivityIndicator color="#2563EB" />
-              <Text style={styles.busyText}>Opening…</Text>
-            </View>
-          ) : (
-            <Pressable
-              accessibilityRole="button"
-              onPress={onClose}
-              style={({ pressed }) => [styles.cancel, pressed && styles.cancelPressed]}
-            >
-              <Text style={styles.cancelText}>Cancel</Text>
-            </Pressable>
-          )}
-        </Animated.View>
-      </View>
-    </Modal>
+        <Pressable
+          accessibilityRole="button"
+          disabled={busy}
+          onPress={onClose}
+          style={({ pressed }) => [styles.cancel, pressed && styles.cancelPressed]}
+        >
+          <Text style={styles.cancelText}>{busy ? 'Opening…' : 'Cancel'}</Text>
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -127,59 +119,58 @@ const styles = StyleSheet.create({
   backdrop: {
     position: 'absolute',
     top: 0,
-    left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(15,23,42,0.5)',
+    left: 0,
+    backgroundColor: 'rgba(19,27,46,0.5)',
   },
   sheet: {
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 32,
-    gap: 10,
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radii.xxl,
+    borderTopRightRadius: radii.xxl,
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.sm,
+    gap: spacing.xs,
   },
   handle: {
     alignSelf: 'center',
     width: 40,
     height: 4,
     borderRadius: 2,
-    backgroundColor: '#CBD5E1',
-    marginBottom: 12,
+    backgroundColor: colors.outlineVariant,
+    marginBottom: spacing.sm,
   },
-  title: { fontSize: 20, fontWeight: '700', color: '#0F172A' },
-  sub: { fontSize: 13, lineHeight: 18, color: '#64748B', marginBottom: 6 },
+  title: { ...type.headline, color: colors.onSurface },
+  sub: { ...type.bodySm, color: colors.onSurfaceVariant, marginBottom: spacing.xxs },
   option: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    minHeight: 68,
-    paddingHorizontal: 14,
-    borderRadius: 18,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E7EDF5',
+    gap: spacing.sm,
+    minHeight: 66,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surfaceLow,
   },
-  optionPressed: { backgroundColor: '#EFF6FF', borderColor: '#BFDBFE' },
+  optionPressed: { backgroundColor: colors.surfaceContainer },
   optionDisabled: { opacity: 0.5 },
-  optionIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  optionGlyph: { fontSize: 21 },
-  optionCopy: { flex: 1 },
-  optionTitle: { fontSize: 15, fontWeight: '700', color: '#0F172A' },
-  optionSub: { fontSize: 12, color: '#64748B', marginTop: 2 },
-  chevron: { fontSize: 24, color: '#94A3B8', marginTop: -2 },
-  busy: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 16 },
-  busyText: { color: '#475569', fontWeight: '600' },
-  cancel: {
-    marginTop: 4,
-    minHeight: 52,
+  optionIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 16,
-    backgroundColor: '#F1F5F9',
   },
-  cancelPressed: { backgroundColor: '#E2E8F0' },
-  cancelText: { fontWeight: '700', color: '#334155', fontSize: 15 },
+  optionCopy: { flex: 1, gap: 2 },
+  optionTitle: { ...type.labelLg, color: colors.onSurface, fontWeight: '700' },
+  optionSub: { ...type.bodySm, color: colors.onSurfaceVariant },
+  cancel: {
+    marginTop: spacing.xxs,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radii.pill,
+    backgroundColor: colors.surfaceLow,
+  },
+  cancelPressed: { backgroundColor: colors.surfaceContainer },
+  cancelText: { ...type.labelLg, color: colors.onSurfaceVariant, fontWeight: '700' },
 });
