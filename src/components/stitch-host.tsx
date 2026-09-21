@@ -1,18 +1,23 @@
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system/legacy';
-import { useCallback, useEffect, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   Platform,
   StyleSheet,
   View,
-  type ViewStyle,
 } from 'react-native';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 
+import { ProfileModal } from '@/components/profile-modal';
+import { ScanSourceSheet } from '@/components/scan-source-sheet';
 import {
   DEFAULT_STITCH_PATH,
-  STITCH_NAV_INJECT,
+  prepareStitchHtml,
+  STITCH_BRIDGE_INJECT,
   STITCH_SCREENS,
   type StitchPath,
 } from '@/lib/stitch';
@@ -21,18 +26,7 @@ function isStitchPath(value: string): value is StitchPath {
   return value in STITCH_SCREENS;
 }
 
-function applyNavigation(raw: string, setPath: (path: StitchPath) => void) {
-  try {
-    const data = JSON.parse(raw) as { type?: string; path?: string };
-    if (data.type === 'navigate' && data.path && isStitchPath(data.path)) {
-      setPath(data.path);
-    }
-  } catch {
-    // ignore
-  }
-}
-
-async function loadStitchHtml(path: StitchPath) {
+async function loadRawHtml(path: StitchPath) {
   const asset = Asset.fromModule(STITCH_SCREENS[path]);
   await asset.downloadAsync();
   const uri = asset.localUri ?? asset.uri;
@@ -47,18 +41,29 @@ async function loadStitchHtml(path: StitchPath) {
   return FileSystem.readAsStringAsync(uri);
 }
 
-/** Thin host — only loads your Stitch HTML + wires data-path navigation */
 export function StitchHost() {
-  const [path, setPath] = useState<StitchPath>(DEFAULT_STITCH_PATH);
+  const [stack, setStack] = useState<StitchPath[]>([DEFAULT_STITCH_PATH]);
+  const path = stack[stack.length - 1] ?? DEFAULT_STITCH_PATH;
   const [html, setHtml] = useState<string | null>(null);
+  const [scanOpen, setScanOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const webRef = useRef<WebView>(null);
+
+  const push = useCallback((next: StitchPath) => {
+    setStack((prev) => (prev[prev.length - 1] === next ? prev : [...prev, next]));
+  }, []);
+
+  const back = useCallback(() => {
+    setStack((prev) => (prev.length > 1 ? prev.slice(0, -1) : prev));
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     setHtml(null);
 
-    loadStitchHtml(path)
-      .then((content) => {
-        if (!cancelled) setHtml(content);
+    loadRawHtml(path)
+      .then((raw) => {
+        if (!cancelled) setHtml(prepareStitchHtml(raw));
       })
       .catch((error) => {
         console.error('Failed to load Stitch screen', path, error);
@@ -69,61 +74,163 @@ export function StitchHost() {
     };
   }, [path]);
 
+  const runCapture = useCallback(
+    async (source: 'camera' | 'gallery') => {
+      setScanOpen(false);
+
+      const permission =
+        source === 'camera'
+          ? await ImagePicker.requestCameraPermissionsAsync()
+          : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (!permission.granted) {
+        Alert.alert(
+          'Permission needed',
+          source === 'camera'
+            ? 'Allow camera access to scan cards.'
+            : 'Allow photo library access to import cards.'
+        );
+        return;
+      }
+
+      const result =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync({
+              quality: 0.8,
+              allowsEditing: false,
+            })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              quality: 0.8,
+              allowsMultipleSelection: false,
+            });
+
+      if (result.canceled) return;
+
+      push('scan-processing');
+      setTimeout(() => push('scan-review'), 1200);
+    },
+    [push]
+  );
+
+  const handleMessage = useCallback(
+    (raw: string) => {
+      try {
+        const data = JSON.parse(raw) as {
+          type?: string;
+          path?: string;
+          source?: 'camera' | 'gallery' | 'menu';
+          message?: string;
+          value?: string;
+        };
+
+        switch (data.type) {
+          case 'navigate': {
+            if (data.path === 'card-scanner') {
+              setScanOpen(true);
+              return;
+            }
+            if (data.path && isStitchPath(data.path)) push(data.path);
+            return;
+          }
+          case 'back':
+            back();
+            return;
+          case 'scan': {
+            if (data.source === 'camera' || data.source === 'gallery') {
+              void runCapture(data.source);
+              return;
+            }
+            setScanOpen(true);
+            return;
+          }
+          case 'profile':
+            setProfileOpen(true);
+            return;
+          case 'settings':
+            push('settings');
+            return;
+          case 'toast':
+            if (data.message) Alert.alert('CardFlow', data.message);
+            return;
+          case 'call':
+            void Linking.openURL(`tel:${data.value || ''}`);
+            return;
+          case 'email':
+            void Linking.openURL(`mailto:${data.value || ''}`);
+            return;
+          default:
+            break;
+        }
+      } catch {
+        // ignore
+      }
+    },
+    [back, push, runCapture]
+  );
+
   useEffect(() => {
     if (Platform.OS !== 'web') return;
-
     const onWindowMessage = (event: MessageEvent) => {
       const raw =
         typeof event.data === 'string' ? event.data : JSON.stringify(event.data);
-      applyNavigation(raw, setPath);
+      handleMessage(raw);
     };
-
     window.addEventListener('message', onWindowMessage);
     return () => window.removeEventListener('message', onWindowMessage);
-  }, []);
+  }, [handleMessage]);
 
-  const onMessage = useCallback((event: WebViewMessageEvent) => {
-    applyNavigation(event.nativeEvent.data, setPath);
-  }, []);
+  const onWebMessage = useCallback(
+    (event: WebViewMessageEvent) => {
+      handleMessage(event.nativeEvent.data);
+    },
+    [handleMessage]
+  );
 
-  if (!html) {
-    return (
-      <View style={styles.loading}>
-        <ActivityIndicator color="#2563EB" size="large" />
-      </View>
-    );
-  }
-
-  if (Platform.OS === 'web') {
-    const withNav = html.includes('</body>')
-      ? html.replace('</body>', `<script>${STITCH_NAV_INJECT}</script></body>`)
-      : `${html}<script>${STITCH_NAV_INJECT}</script>`;
-
-    return (
-      <View style={styles.root}>
-        {/* @ts-expect-error web iframe hosts exact Stitch HTML */}
-        <iframe
-          key={path}
-          srcDoc={withNav}
-          title="CardFlow"
-          style={styles.iframe as unknown as ViewStyle}
-        />
-      </View>
-    );
-  }
+  const htmlWithBridge = html
+    ? html.includes('</body>')
+      ? html.replace('</body>', `<script>${STITCH_BRIDGE_INJECT}</script></body>`)
+      : `${html}<script>${STITCH_BRIDGE_INJECT}</script>`
+    : null;
 
   return (
-    <WebView
-      key={path}
-      source={{ html, baseUrl: 'https://localhost' }}
-      originWhitelist={['*']}
-      onMessage={onMessage}
-      injectedJavaScript={STITCH_NAV_INJECT}
-      javaScriptEnabled
-      domStorageEnabled
-      setSupportMultipleWindows={false}
-      style={styles.webview}
-    />
+    <View style={styles.root}>
+      {!htmlWithBridge ? (
+        <View style={styles.loading}>
+          <ActivityIndicator color="#2563EB" size="large" />
+        </View>
+      ) : Platform.OS === 'web' ? (
+        <iframe
+          key={path}
+          srcDoc={htmlWithBridge}
+          title="CardFlow"
+          style={{ border: 'none', width: '100%', height: '100%' }}
+        />
+      ) : (
+        <WebView
+          ref={webRef}
+          key={path}
+          source={{ html: htmlWithBridge, baseUrl: 'https://localhost' }}
+          originWhitelist={['*']}
+          onMessage={onWebMessage}
+          javaScriptEnabled
+          domStorageEnabled
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          setSupportMultipleWindows={false}
+          style={styles.webview}
+        />
+      )}
+
+      <ScanSourceSheet
+        visible={scanOpen}
+        onClose={() => setScanOpen(false)}
+        onCamera={() => void runCapture('camera')}
+        onGallery={() => void runCapture('gallery')}
+      />
+
+      <ProfileModal visible={profileOpen} onClose={() => setProfileOpen(false)} />
+    </View>
   );
 }
 
@@ -136,5 +243,4 @@ const styles = StyleSheet.create({
     backgroundColor: '#faf8ff',
   },
   webview: { flex: 1, backgroundColor: '#faf8ff' },
-  iframe: { borderWidth: 0, width: '100%', height: '100%' },
 });

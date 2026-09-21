@@ -29,7 +29,14 @@
           "imageWidth": 76
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow CardFlow to import business cards from your gallery.",
+          "cameraPermission": "Allow CardFlow to scan business cards with your camera."
+        }
+      ]
     ],
     "extra": {
       "router": {},
