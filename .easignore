@@ -1,0 +1,9 @@
+# Keep EAS upload lean — only ship the app
+node_modules/
+.expo/
+dist/
+web-build/
+docs/
+.git/
+*.md
+.vscode/

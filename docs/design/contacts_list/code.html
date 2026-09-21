@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}*{-ms-overflow-style:none;scrollbar-width:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary-fixed-dim":"#b4c5ff","primary-container":"#2563eb","on-background":"#131b2e","secondary-fixed":"#e1e0ff","surface-container":"#eaedff","surface-container-high":"#e2e7ff","on-primary":"#ffffff","error":"#ba1a1a","secondary-fixed-dim":"#c0c1ff","tertiary-fixed":"#6ffbbe","on-secondary-container":"#fffbff","surface-container-low":"#f2f3ff","on-primary-container":"#eeefff","on-secondary":"#ffffff","on-error":"#ffffff","surface-container-highest":"#dae2fd","surface-container-lowest":"#ffffff","surface-variant":"#dae2fd","error-container":"#ffdad6","surface-bright":"#faf8ff","on-error-container":"#93000a","primary-fixed":"#dbe1ff","on-surface-variant":"#434655","inverse-on-surface":"#eef0ff","secondary-container":"#6063ee","inverse-surface":"#283044","tertiary-fixed-dim":"#4edea3","on-tertiary-fixed-variant":"#005236","surface-tint":"#0053db","inverse-primary":"#b4c5ff","outline":"#737686","surface":"#faf8ff","on-surface":"#131b2e","outline-variant":"#c3c6d7","on-secondary-fixed":"#07006c","background":"#faf8ff","surface-dim":"#d2d9f4","on-primary-fixed":"#00174b","on-secondary-fixed-variant":"#2f2ebe","tertiary":"#006242","on-primary-fixed-variant":"#003ea8","on-tertiary":"#ffffff","secondary":"#4648d4","on-tertiary-fixed":"#002113","tertiary-container":"#007d55","primary":"#004ac6","on-tertiary-container":"#bdffdb"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-sm":"0.75rem","space-2xs":"0.25rem","space-xs":"0.5rem","margin-tablet":"1.5rem","margin":"1rem","space-sm":"0.75rem","space-lg":"1.5rem","space-2xl":"3rem","space-xl":"2rem","space-md":"1rem","gutter":"1rem"},fontFamily:{"label-md":["Inter"],"label-lg":["Inter"],"headline-sm":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"display":["Inter"],"label-sm":["Inter"],"body-sm":["Inter"],"body-lg":["Inter"]},fontSize:{"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.01em",fontWeight:"600"}],"label-lg":["14px",{lineHeight:"20px",letterSpacing:"0em",fontWeight:"600"}],"headline-sm":["18px",{lineHeight:"24px",letterSpacing:"-0.015em",fontWeight:"600"}],"headline-lg-mobile":["26px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-md":["22px",{lineHeight:"28px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-lg":["30px",{lineHeight:"38px",letterSpacing:"-0.025em",fontWeight:"700"}],"body-md":["14px",{lineHeight:"20px",letterSpacing:"-0.005em",fontWeight:"400"}],"display":["36px",{lineHeight:"44px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-sm":["10px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"400"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-sm min-w-0"><img alt="CardFlow App Logo" class="h-8 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VCOWaEGxo9zOPmQanq-ttwJudv8lQd98mXnsJf4rTyCnZibC_mR4eUO6dYUKItxEAtvA2T8h_yHSrzV85H1AgiQqulFsfp7E_EJ0TZFQqn7CA7zqD0siTDkxEtiXRcKxiIQfLNRW_EJBXWUxr0CwnII7HFjgnshzoKx_A4uUTocLCOOtjamgNZw1ODc2tgvUUoPjiunpTbRU6WJlol0oTlC2GZWMAUEJZwyvlE6strXq2x_LJ0yypupb-Z"/><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm uppercase tracking-wider text-primary truncate">CardFlow AI</span><h1 class="font-headline-sm text-headline-sm text-on-surface truncate">Contacts</h1></div></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="Notifications" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors relative" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-primary-container ring-2 ring-surface-container-lowest"></span></button><a class="w-11 h-11 flex items-center justify-center rounded-full transition-transform active:scale-95" data-path="settings" href="#"><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9140vgaEE6gfSV4KxE3eiGb0zzsUUOzXWtyjzY3KmiN2jXqgtnlf32AaNDgP_0hegwY4KXWjPDe4CVCBCo1TNfbDEShxtVnxoumTBiEkpjtYD60ygr7MiwRUzybDkHqygUchoGpIttvzhJilHTT1y6UgfVq45suOEXKdbJWvFDUmk4vAcZgm8iTlMlfu0QSXBoyuSiDKLeZzWmlgpK9_12FELT8IrwvCGUFlyA1vUIwdfD-q9xwlIdg"/></a></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full pb-10">
+<!-- Sub-Header / Triage Action Strip -->
+<div class="px-margin pt-space-xs pb-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Directory</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-primary font-label-sm text-label-sm font-semibold">1,420</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="h-9 px-3.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-all active:scale-95" id="batch-toggle" type="button">
+<span class="material-symbols-outlined text-[18px]">checklist</span>
+<span>Select</span>
+</button>
+<button class="h-9 px-3.5 rounded-lg bg-primary-container hover:bg-primary text-on-primary font-label-md text-label-md flex items-center gap-1.5 shadow-sm active:scale-95 transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">person_add</span>
+<span>New</span>
+</button>
+</div>
+</div>
+<!-- Search & Refinement Bar -->
+<div class="px-margin pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-outline text-[20px] pointer-events-none">search</span>
+<input class="w-full h-11 pl-10 pr-9 rounded-xl bg-surface-container-lowest text-on-surface placeholder:text-outline font-body-md text-body-md shadow-sm focus:outline-none focus:bg-surface-container-low transition-colors" placeholder="Search 1,420 contacts, companies, tags..." type="text"/>
+<button aria-label="Voice search" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface p-1" type="button">
+<span class="material-symbols-outlined text-[18px]">mic</span>
+</button>
+</div>
+<button aria-label="Filter" class="w-11 h-11 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm flex items-center justify-center text-on-surface-variant relative transition-colors active:scale-95" type="button">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-primary-container"></span>
+</button>
+<div class="relative">
+<button class="h-11 px-3 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low shadow-sm flex items-center gap-1 text-on-surface font-label-md text-label-md transition-colors active:scale-95" id="sort-trigger" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">swap_vert</span>
+<span class="max-w-[70px] truncate">Recent</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Horizontal Scrollable Tag Filters -->
+<div class="w-full overflow-x-auto px-margin py-space-xs flex items-center gap-space-2xs no-scrollbar">
+<button class="shrink-0 h-8 px-3.5 rounded-full bg-primary-container text-on-primary font-label-md text-label-md shadow-sm transition-transform active:scale-95 flex items-center gap-1.5" type="button">
+<span>All</span>
+<span class="text-on-primary-container font-label-sm text-label-sm opacity-90">1,420</span>
+</button>
+<button class="shrink-0 h-8 px-3.5 rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md shadow-sm transition-transform active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-primary">document_scanner</span>
+<span>Recent Scans</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">24</span>
+</button>
+<button class="shrink-0 h-8 px-3.5 rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md shadow-sm transition-transform active:scale-95 flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-tertiary">star</span>
+<span>Favorites</span>
+<span class="px-1.5 py-0.2 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">18</span>
+</button>
+<button class="shrink-0 h-8 px-3.5 rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md shadow-sm transition-transform active:scale-95 flex items-center gap-1.5" type="button">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span>Needs Review</span>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-bold">3</span>
+</button>
+<button class="shrink-0 h-8 px-3 rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md shadow-sm transition-transform active:scale-95" type="button">
+      Investors
+    </button>
+<button class="shrink-0 h-8 px-3 rounded-full bg-surface-container-lowest hover:bg-surface-container text-on-surface font-label-md text-label-md shadow-sm transition-transform active:scale-95" type="button">
+      Clients
+    </button>
+</div>
+<!-- Main Directory Stream with Alphabetical Rail Layout -->
+<div class="relative w-full px-margin pt-space-xs">
+<!-- Floating Alphabetic Scrub Bar -->
+<div class="fixed right-1.5 top-1/2 -translate-y-1/2 z-30 flex flex-col items-center py-2 px-1 rounded-full bg-surface-container-lowest/80 backdrop-blur-md shadow-sm">
+<button class="text-[9px] font-label-sm font-bold text-primary py-0.5 hover:scale-125 transition-transform" type="button">★</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">A</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">B</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">C</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">D</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">E</button>
+<button class="text-[9px] font-label-sm font-bold text-primary font-extrabold py-0.5 scale-110" type="button">M</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">R</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">S</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">T</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">Z</button>
+<button class="text-[9px] font-label-sm font-bold text-on-surface-variant py-0.5 hover:text-primary transition-colors" type="button">#</button>
+</div>
+<!-- Contact Stream Container (padded right to clear scrub rail) -->
+<div class="pr-5 flex flex-col gap-space-md">
+<!-- SECTION 1: Batch Group -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between pt-space-xs pb-1">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-lg text-label-lg text-on-surface">Recent Batch: TechCrunch Disrupt</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Yesterday, 4:18 PM</span>
+</div>
+<!-- Contact Card 1: Marcus Vance -->
+<div class="group relative p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex flex-col gap-space-xs">
+<div class="flex items-start gap-3 min-w-0">
+<!-- Card / Avatar Visual -->
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Corporate headshot of Marcus Vance, mid-forties executive with confident smile, soft studio lighting, sharp tailored navy blazer, slate gray background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNP_JTphmEfa57s2HKvx9vQIL1kTxG0ZkvI5ikdut-dc4nfbSiT-K3pz9rbV5GYopRgzoYlB7iOQ24emxzMMebL5JI2QTtOYmGCUEatQNhTGwLYpsdlSkJgYtuF4hSyI8nftVxeiUQoQl-DLSj1CYdgHrgH3b6X0-7uzZ3KchXXJvGbF3KP_zJoekQZSvmqcbrfOdwiSGwBlyK4e0HxijJCjjGv5ShjKpynKu5rbypqHGu_L9PmZep8w"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-secondary text-on-secondary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[12px]">style</span>
+</span>
+</div>
+<!-- Meta Information -->
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between gap-1">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Marcus Vance</h3>
+<span class="material-symbols-outlined text-outline text-[18px] group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Managing Partner • Horizon Capital</p>
+<div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">Investors</span>
+<span class="px-1.5 py-0.5 rounded-md bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px] text-tertiary">check_circle</span>
+                  AI Extracted
+                </span>
+</div>
+</div>
+</div>
+<!-- Quick Action Buttons Dock inside Card -->
+<div class="pt-2 mt-0.5 flex items-center justify-between bg-surface-container-low/50 rounded-xl px-2.5 py-1.5">
+<div class="flex items-center gap-2">
+<a class="h-8 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform" href="tel:+14155550192">
+<span class="material-symbols-outlined text-[15px] text-primary">call</span>
+<span>Call</span>
+</a>
+<a class="h-8 px-3 rounded-lg bg-surface-container-lowest text-on-surface font-label-sm text-label-sm flex items-center gap-1.5 shadow-sm active:scale-95 transition-transform" href="mailto:marcus@horizoncap.vc">
+<span class="material-symbols-outlined text-[15px] text-primary">mail</span>
+<span>Email</span>
+</a>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Bookmark" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+</button>
+<button aria-label="Share" class="w-8 h-8 rounded-lg flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container-high transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">ios_share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Contact Card 2: Alex Morgan -->
+<div class="group relative p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Modern professional portrait of Alex Morgan, casual tech leader with glasses, bright daylight setting, vibrant office background, clean minimalist style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAT13_GnWch-0VuAwaGKI_qn-dk1GdJ_fn5ikAGjYgxrHV3KXivTyrCQBDhTNu1aDQCvUTZo6Q_LmiL3x9lwuz8Ol8BMnuMUVr2FMFbHUU9u5F6cYgND9TYVATRL6-YVGWoQwRSgiLJ5SNEIOYToKmYmfXRv1aZEApbwHMv7ou9RjQfyZFoLRYYLHcXrY_5u-La1bUyqbVzpmxgN20uH0-wTvKFqwGkRYvCniYvbfFqRLfr1IMnwtEftA"/>
+</div>
+<span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-md bg-tertiary text-on-tertiary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[12px]">verified</span>
+</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Alex Morgan</h3>
+<span class="px-1.5 py-0.2 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant font-label-sm text-label-sm font-bold flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[10px]">done_all</span>
+                Verified
+              </span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">VP Product • Stripe</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm font-medium">Partners</span>
+<span class="text-outline text-[11px] font-label-sm">• SFO Meetup</span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<a class="w-9 h-9 rounded-xl bg-surface-container-low text-primary flex items-center justify-center hover:bg-surface-container transition-colors active:scale-95" href="mailto:alex@stripe.com">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</a>
+</div>
+</div>
+<!-- Contact Card 3: Dr. Elena Rostova -->
+<div class="group relative p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Portrait of Dr. Elena Rostova, scientist and biotech founder, confident look, sleek modern laboratory backdrop with soft blue and green ambient tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRTECv9gp5tbKmQoHcNTlV3-hsd8Hzm4ksxqkFwR0V8XgDcUbYbEx9bzGZLwwdwMO22Xn1467ygP4YGmZUX7z2pBSTzu84mEC8sf6822L1GZeSXBfw9e5sjJYbRk3T6LC69XIXuannJ5v7JmmCy0dzfvPjW0SUfI3auLc9wPydIY4Xnf4ogyVdDqpza376yRGtgOoxt1zgmOPFFNgT-u9nKaJRxREMu1YYdnSgEVIjDF4k8r3_z_ND3w"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Dr. Elena Rostova</h3>
+<span class="px-1.5 py-0.2 rounded-full bg-error-container text-on-error-container font-label-sm text-label-sm font-semibold">1 Field Low Conf.</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Chief Scientist • DeepBio</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-tertiary-fixed-dim text-on-tertiary-fixed-variant font-label-sm text-label-sm font-semibold">BioTech</span>
+<span class="px-1.5 py-0.5 rounded-md bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm">Card Scanned</span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<button class="h-8 px-2.5 rounded-lg bg-surface-container-high hover:bg-surface-variant text-on-surface font-label-sm text-label-sm flex items-center gap-1 active:scale-95 transition-transform" type="button">
+<span class="material-symbols-outlined text-[14px] text-primary">edit_note</span>
+<span>Review</span>
+</button>
+</div>
+</div>
+</div>
+<!-- SECTION 2: Alphabetical Group M -->
+<div class="flex flex-col gap-space-xs mt-space-xs">
+<div class="flex items-center justify-between pt-space-xs pb-1">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-lg bg-surface-container-high text-primary font-headline-sm text-headline-sm flex items-center justify-center font-bold">M</span>
+<span class="font-label-md text-label-md text-on-surface-variant">14 Contacts</span>
+</div>
+</div>
+<!-- Contact Card 4: Maya Patel -->
+<div class="group relative p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Warm natural headshot of Maya Patel, youthful software executive in a bright minimalist co-working space, contemporary aesthetic, natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPWORYEikAdS4liLLyZxm9cqHP6EM3PsqKYaM23tEZiSM2qGpRVAM3rvTlvhlWoG19hi1fUx0ASqh3QFgKd9SH7zyntlew-OZ927Tj871NENwJu-amL9iqGNCPftT418q8-mFNLDOlBA5H6xBw3Au-C86ZPPl_P5RZLLaobmCkuHaQdPv3_EFOdr9t_gKuFaWwT6GqLm73ol-NFLCMpWBAVHzDeg0K8kpPvvGB54mfRZETLSwtQWHetA"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Maya Patel</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Head of Growth • Linear</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-semibold">SaaS</span>
+<span class="text-outline text-[11px] font-label-sm">• Last met 2w ago</span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<a class="w-9 h-9 rounded-xl bg-surface-container-low text-primary flex items-center justify-center hover:bg-surface-container transition-colors active:scale-95" href="tel:+14155550184">
+<span class="material-symbols-outlined text-[18px]">call</span>
+</a>
+</div>
+</div>
+<!-- Contact Card 5: Michael Chang -->
+<div class="group relative p-3.5 rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex items-center gap-3">
+<div class="relative shrink-0">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center overflow-hidden shadow-inner">
+<img class="w-full h-full object-cover" data-alt="High contrast executive portrait of Michael Chang, startup founder wearing a dark turtleneck against a neutral architectural backdrop, modern venture aesthetics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqiTFygSE8IwPcILgAvohcMm4qkatRNIVd_DPRSuCFn10IDbyIf7GpCxBJvup8AI9uxjY-aA5k0_jvYoeONTJHLsaY2TPmQjmXbpbiBeuVHDEvgZyVpC8XYm1aiQ7B8EMusMN7tqHQR6gldOzlIoagLr-TSXqlg06cNzRhy60_0jWzkA1y4FHt2HK9kfKD8KNRim0aEVJ_0vtaViw4Iz9DvTyj7B9CTRJCLm9ZuRQIhh601eH5WohI7w"/>
+</div>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5">
+<h3 class="font-headline-sm text-headline-sm text-on-surface truncate">Michael Chang</h3>
+<span class="material-symbols-outlined text-[16px] text-tertiary">star</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Founder &amp; CEO • ArcLight</p>
+<div class="flex items-center gap-1.5 mt-1.5">
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm font-semibold">Founders</span>
+<span class="px-1.5 py-0.5 rounded-md bg-surface-container-low text-on-surface-variant font-label-sm text-label-sm">Series A</span>
+</div>
+</div>
+<div class="flex items-center gap-1 shrink-0">
+<a class="w-9 h-9 rounded-xl bg-surface-container-low text-primary flex items-center justify-center hover:bg-surface-container transition-colors active:scale-95" href="mailto:m.chang@arclight.io">
+<span class="material-symbols-outlined text-[18px]">mail</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Quick Triage Utility Card (Moments of Delight / Human Feel) -->
+<div class="mt-space-sm p-4 rounded-2xl bg-surface-container-high flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-3 min-w-0">
+<div class="w-10 h-10 rounded-xl bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">insights</span>
+</div>
+<div class="min-w-0">
+<h4 class="font-label-lg text-label-lg text-on-surface truncate">Syncing to CRM</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Salesforce • 24 new leads queued</p>
+</div>
+</div>
+<button class="h-8 px-3 rounded-lg bg-surface-container-lowest text-primary font-label-md text-label-md shadow-sm shrink-0 active:scale-95 transition-transform" type="button">
+          Push All
+        </button>
+</div>
+</div>
+</div>
+<!-- Multi-Select Floating Drawer (Hidden by default, toggled via JS) -->
+<div class="fixed bottom-20 left-4 right-4 z-40 bg-inverse-surface/95 backdrop-blur-md text-inverse-on-surface p-3 rounded-2xl shadow-xl flex items-center justify-between transition-all transform translate-y-28 opacity-0 pointer-events-none" id="batch-action-bar">
+<div class="flex items-center gap-2 pl-2">
+<span class="w-5 h-5 rounded-full bg-primary flex items-center justify-center text-[11px] font-bold text-on-primary">2</span>
+<span class="font-label-md text-label-md text-inverse-on-surface">Selected</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 px-3 rounded-lg bg-surface-container-lowest/10 hover:bg-surface-container-lowest/20 font-label-sm text-label-sm text-inverse-on-surface flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">label</span>
+<span>Tag</span>
+</button>
+<button class="h-8 px-3 rounded-lg bg-surface-container-lowest/10 hover:bg-surface-container-lowest/20 font-label-sm text-label-sm text-inverse-on-surface flex items-center gap-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[15px]">output</span>
+<span>Export</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container-lowest/20 flex items-center justify-center text-inverse-on-surface hover:bg-surface-container-lowest/30 transition-colors" id="batch-close" type="button">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    const batchBtn = document.getElementById('batch-toggle');
+    const batchBar = document.getElementById('batch-action-bar');
+    const batchClose = document.getElementById('batch-close');
+    let isBatchActive = false;
+
+    function toggleBatchMode() {
+      isBatchActive = !isBatchActive;
+      if (isBatchActive) {
+        batchBar.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
+        batchBar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+        batchBtn.classList.add('bg-primary', 'text-on-primary');
+        batchBtn.classList.remove('bg-surface-container', 'text-on-surface');
+      } else {
+        batchBar.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
+        batchBar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+        batchBtn.classList.remove('bg-primary', 'text-on-primary');
+        batchBtn.classList.add('bg-surface-container', 'text-on-surface');
+      }
+    }
+
+    if (batchBtn && batchBar && batchClose) {
+      batchBtn.addEventListener('click', toggleBatchMode);
+      batchClose.addEventListener('click', toggleBatchMode);
+    }
+  })();
+</script></main><nav class="fixed bottom-0 w-full z-50 pb-safe bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_-4px_24px_rgba(19,27,46,0.06)]" data-active-classes="text-primary font-label-md"><div class="h-16 px-space-xs flex items-center justify-around relative"><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="home" href="#"><span class="material-symbols-outlined text-[22px]">dashboard</span><span class="font-label-sm text-label-sm mt-0.5">Home</span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 transition-colors relative text-primary font-label-md" data-path="contacts" href="#"><span class="material-symbols-outlined text-[22px]">contacts</span><span class="font-label-sm text-label-sm mt-0.5">Contacts</span><span class="absolute top-1 right-2 px-1.5 py-0.2 min-w-[16px] h-4 rounded-full bg-primary text-on-primary font-label-sm text-[9px] leading-tight flex items-center justify-center">3</span></a><div class="relative -top-5 flex flex-col items-center justify-center shrink-0"><a class="w-14 h-14 rounded-full bg-primary-container text-on-primary flex items-center justify-center shadow-[0_8px_20px_rgba(37,99,235,0.38)] active:scale-95 transition-transform" data-path="card-scanner" href="#"><span class="material-symbols-outlined text-[28px]">document_scanner</span></a><span class="font-label-sm text-label-sm text-on-surface-variant mt-1.5 font-semibold">Scan</span></div><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="groups" href="#"><span class="material-symbols-outlined text-[22px]">folder_shared</span><span class="font-label-sm text-label-sm mt-0.5">Groups</span></a><a class="flex flex-col items-center justify-center min-w-[54px] min-h-[44px] py-1 text-on-surface-variant hover:text-on-surface transition-colors" data-path="settings" href="#"><span class="material-symbols-outlined text-[22px]">tune</span><span class="font-label-sm text-label-sm mt-0.5">Settings</span></a></div></nav></body></html>

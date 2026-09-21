@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_stack" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100%;min-height:100%;margin:0;padding:0;}body{overscroll-behavior-y:none;-webkit-tap-highlight-color:transparent;}.pb-safe{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 1.5rem);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}}::-webkit-scrollbar{display:none;}*{-ms-overflow-style:none;scrollbar-width:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"primary-fixed-dim":"#b4c5ff","primary-container":"#2563eb","on-background":"#131b2e","secondary-fixed":"#e1e0ff","surface-container":"#eaedff","surface-container-high":"#e2e7ff","on-primary":"#ffffff","error":"#ba1a1a","secondary-fixed-dim":"#c0c1ff","tertiary-fixed":"#6ffbbe","on-secondary-container":"#fffbff","surface-container-low":"#f2f3ff","on-primary-container":"#eeefff","on-secondary":"#ffffff","on-error":"#ffffff","surface-container-highest":"#dae2fd","surface-container-lowest":"#ffffff","surface-variant":"#dae2fd","error-container":"#ffdad6","surface-bright":"#faf8ff","on-error-container":"#93000a","primary-fixed":"#dbe1ff","on-surface-variant":"#434655","inverse-on-surface":"#eef0ff","secondary-container":"#6063ee","inverse-surface":"#283044","tertiary-fixed-dim":"#4edea3","on-tertiary-fixed-variant":"#005236","surface-tint":"#0053db","inverse-primary":"#b4c5ff","outline":"#737686","surface":"#faf8ff","on-surface":"#131b2e","outline-variant":"#c3c6d7","on-secondary-fixed":"#07006c","background":"#faf8ff","surface-dim":"#d2d9f4","on-primary-fixed":"#00174b","on-secondary-fixed-variant":"#2f2ebe","tertiary":"#006242","on-primary-fixed-variant":"#003ea8","on-tertiary":"#ffffff","secondary":"#4648d4","on-tertiary-fixed":"#002113","tertiary-container":"#007d55","primary":"#004ac6","on-tertiary-container":"#bdffdb"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"gutter-sm":"0.75rem","space-2xs":"0.25rem","space-xs":"0.5rem","margin-tablet":"1.5rem","margin":"1rem","space-sm":"0.75rem","space-lg":"1.5rem","space-2xl":"3rem","space-xl":"2rem","space-md":"1rem","gutter":"1rem"},fontFamily:{"label-md":["Inter"],"label-lg":["Inter"],"headline-sm":["Inter"],"headline-lg-mobile":["Inter"],"headline-md":["Inter"],"headline-lg":["Inter"],"body-md":["Inter"],"display":["Inter"],"label-sm":["Inter"],"body-sm":["Inter"],"body-lg":["Inter"]},fontSize:{"label-md":["12px",{lineHeight:"16px",letterSpacing:"0.01em",fontWeight:"600"}],"label-lg":["14px",{lineHeight:"20px",letterSpacing:"0em",fontWeight:"600"}],"headline-sm":["18px",{lineHeight:"24px",letterSpacing:"-0.015em",fontWeight:"600"}],"headline-lg-mobile":["26px",{lineHeight:"32px",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-md":["22px",{lineHeight:"28px",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-lg":["30px",{lineHeight:"38px",letterSpacing:"-0.025em",fontWeight:"700"}],"body-md":["14px",{lineHeight:"20px",letterSpacing:"-0.005em",fontWeight:"400"}],"display":["36px",{lineHeight:"44px",letterSpacing:"-0.03em",fontWeight:"700"}],"label-sm":["10px",{lineHeight:"14px",letterSpacing:"0.04em",fontWeight:"700"}],"body-sm":["12px",{lineHeight:"18px",letterSpacing:"0em",fontWeight:"400"}],"body-lg":["16px",{lineHeight:"24px",letterSpacing:"-0.01em",fontWeight:"400"}]}}}};</script><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface text-on-surface font-body-md text-body-md flex flex-col min-h-screen"><header class="fixed top-0 w-full z-50 pt-safe bg-surface-container-lowest/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-gutter flex items-center justify-between gap-space-sm"><div class="flex items-center gap-space-xs min-w-0"><button aria-label="Back" class="w-11 h-11 -ml-2 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low active:scale-95 transition-all" onclick="history.back()"><span class="material-symbols-outlined text-[24px]">arrow_back</span></button><img alt="CardFlow App Logo" class="h-7 w-auto object-contain shrink-0" src="https://lh3.googleusercontent.com/aida/AEtjO1VCOWaEGxo9zOPmQanq-ttwJudv8lQd98mXnsJf4rTyCnZibC_mR4eUO6dYUKItxEAtvA2T8h_yHSrzV85H1AgiQqulFsfp7E_EJ0TZFQqn7CA7zqD0siTDkxEtiXRcKxiIQfLNRW_EJBXWUxr0CwnII7HFjgnshzoKx_A4uUTocLCOOtjamgNZw1ODc2tgvUUoPjiunpTbRU6WJlol0oTlC2GZWMAUEJZwyvlE6strXq2x_LJ0yypupb-Z"/><h1 class="font-headline-sm text-headline-sm text-on-surface truncate ml-1">Batch Review</h1></div><div class="flex items-center gap-space-xs shrink-0"><button aria-label="More actions" class="w-11 h-11 flex items-center justify-center rounded-full text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">more_vert</span></button><img alt="Profile" class="w-8 h-8 rounded-full object-cover ring-1 ring-outline-variant/60" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB9140vgaEE6gfSV4KxE3eiGb0zzsUUOzXWtyjzY3KmiN2jXqgtnlf32AaNDgP_0hegwY4KXWjPDe4CVCBCo1TNfbDEShxtVnxoumTBiEkpjtYD60ygr7MiwRUzybDkHqygUchoGpIttvzhJilHTT1y6UgfVq45suOEXKdbJWvFDUmk4vAcZgm8iTlMlfu0QSXBoyuSiDKLeZzWmlgpK9_12FELT8IrwvCGUFlyA1vUIwdfD-q9xwlIdg"/></div></div></header><main class="flex-1 flex flex-col relative w-full pt-16 pb-safe bg-surface"><div class="flex flex-col w-full">
+<!-- Interactive Progress Engine & Visual Stage -->
+<div class="px-margin pt-space-md pb-space-lg flex flex-col gap-space-md">
+<!-- Header Section -->
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-space-xs bg-surface-container-highest/60 px-space-sm py-1 rounded-full">
+<span class="material-symbols-outlined text-[15px] text-primary animate-spin">sync</span>
+<span class="font-label-sm text-label-sm text-primary tracking-wider uppercase">Neural Pipeline Active</span>
+</div>
+<span class="font-label-md text-label-md text-on-surface-variant flex items-center gap-1">
+<span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+          Fast OCR Engine
+        </span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface">Processing Batch</h2>
+<p class="font-body-md text-body-md text-on-surface-variant">Extracting contacts with CardFlow AI Engine v4</p>
+</div>
+<!-- Batch Progress Overview Card -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wide text-on-surface-variant">Queue Completion</span>
+<div class="flex items-baseline gap-space-xs mt-0.5">
+<span class="font-headline-md text-headline-md text-on-surface">3 of 4</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Cards Triaged</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-[18px] text-primary">timer</span>
+<span class="font-label-md text-label-md text-on-surface">~2s left</span>
+</div>
+</div>
+<!-- Linear Multi-Segment Visual Progress -->
+<div class="w-full flex flex-col gap-space-2xs">
+<div class="w-full h-2.5 bg-surface-container rounded-full overflow-hidden flex">
+<div class="h-full bg-tertiary-container transition-all duration-700 w-1/2"></div>
+<div class="h-full bg-primary-container transition-all duration-700 w-1/4 animate-pulse"></div>
+<div class="h-full bg-surface-container w-1/4"></div>
+</div>
+<div class="flex justify-between items-center pt-0.5">
+<span class="font-label-sm text-label-sm text-primary">75% Complete</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Avg latency: 420ms/card</span>
+</div>
+</div>
+</div>
+<!-- Live Card Processing Stream -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between px-1">
+<span class="font-label-md text-label-md text-on-surface-variant">Live Extraction Stream</span>
+<button class="font-label-sm text-label-sm text-primary flex items-center gap-1 active:opacity-75" id="pauseToggleBtn" type="button">
+<span class="material-symbols-outlined text-[14px]">pause</span> Pause Triaging
+        </button>
+</div>
+<!-- Item 1: Alex Morgan (Complete) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs transition-all">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden shrink-0 shadow-sm relative">
+<img class="w-full h-full object-cover" data-alt="Minimalist professional executive business card with navy geometric typography for Alex Morgan VP Product at Stripe cleanly laid on warm white marble" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvOvYSzt2zBvs7b2v3INJB5CqSv2v5LxzM6VmYd6NoRTpQwQVuuHgKsF8ljQz5T6vIVAvMqpE0or9MQR9SAlaFSlF9OhVusb89wtTUE5aDtfD0IDoDs4UGfMPPBPS_1Cm9u640z3SfaPqOUPBdc7zhy-ybhobOTY8PhzzVmiHiF9y_cACNycSsq9ADJa_NYAgZbOp3IFt1YSOvH_S9MSe8DsG3SjUJCXj3r9EmbEEolTEl2u6PDhG9LA"/>
+<div class="absolute inset-0 bg-primary/5"></div>
+</div>
+<div class="min-w-0">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Alex Morgan</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">VP Product · Stripe</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm shrink-0">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+            Complete
+          </span>
+</div>
+<!-- Parsed Fields Grid Badges -->
+<div class="flex flex-wrap gap-1.5 pt-1">
+<span class="inline-flex items-center gap-1 bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-tertiary">phone_iphone</span> Phone
+          </span>
+<span class="inline-flex items-center gap-1 bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-tertiary">mail</span> Email
+          </span>
+<span class="inline-flex items-center gap-1 bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-tertiary">share</span> LinkedIn
+          </span>
+<span class="inline-flex items-center gap-1 bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-tertiary">business</span> Stripe, Inc.
+          </span>
+<span class="inline-flex items-center gap-1 bg-surface-container-low text-on-surface-variant px-2 py-0.5 rounded font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-[12px] text-tertiary">location_on</span> HQ SF
+          </span>
+</div>
+</div>
+<!-- Item 2: Dr. Elena Rostova (Complete) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col gap-space-xs transition-all">
+<div class="flex items-start justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden shrink-0 shadow-sm relative">
+<img class="w-full h-full object-cover" data-alt="Sophisticated embossed scientific biotechnology visiting card with teal accents for Dr Elena Rostova Chief Scientist at DeepBio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4O-pp4Wkrb_3RYH1UumhqozEdooVO2AnEJu37ypOs6CcpX_7MaA2qCE_aKxII7EoLcc7icX39xbOHMApg6J8ItDLpMvgsEzrOBGiNvy3xI2dy_VLkxSCLRKxpCoOqLW97afOtI-pAJ7XouMQlmrYhDkeBbPguF-8GqnOTvyTd_tZvtUQEE8XX5wCVmoenADUGTw6JRLBhp_pAxKyDuhI8pcRv2fkwdakpMU3r7aqj1hfBfBZNROOFZg"/>
+<div class="absolute inset-0 bg-tertiary/5"></div>
+</div>
+<div class="min-w-0">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Dr. Elena Rostova</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Chief Scientist · DeepBio</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 bg-tertiary-fixed text-on-tertiary-fixed-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm shrink-0">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+            Complete
+          </span>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-1.5 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[16px] text-tertiary">verified_user</span>
+<span>6/6 contact fields validated</span>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary font-medium">99.4% confidence</span>
+</div>
+</div>
+<!-- Item 3: Marcus Vance (Actively Extracting) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-md flex flex-col gap-space-xs relative overflow-hidden">
+<div class="absolute top-0 left-0 right-0 h-1 bg-surface-container">
+<div class="h-full bg-primary-container transition-all duration-300 w-[85%]" id="activeProgressBar"></div>
+</div>
+<div class="flex items-start justify-between gap-space-sm pt-0.5">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high overflow-hidden shrink-0 shadow-sm relative">
+<img class="w-full h-full object-cover" data-alt="High contrast matte black luxury foil venture capital business card for Marcus Vance Partner at Horizon Capital" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzH5CKR6XOScV_UFIMPob2maDrKJLJ2RbVKbFRlBpaCN7xOug_Uv0X9EScQYaFUjqKVaB0MZIXxnmXZ0olLdGWnAg-h9yICqBA1NS6qhSt8dCMqdFCerrpBscQuqPHWhZp5rErcfXF4bsaim6-MNOI58bHlVlVO7ASxNUQWCfu57s-w8GrL0tLzVTbB9jwyoSPlhftGlM9Cu1LSMvKEsFYpG8lh9OCJHOwCEY2K-TA7ySuO3tPqiqFeg"/>
+<div class="absolute inset-0 bg-primary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary text-[20px] animate-spin">sync</span>
+</div>
+</div>
+<div class="min-w-0">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Marcus Vance</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Partner · Horizon Capital</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1.5 bg-primary-fixed text-on-primary-fixed-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm shrink-0">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-container animate-ping"></span>
+            85% OCR
+          </span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-space-xs flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[16px] text-primary">qr_code_scanner</span>
+<span class="font-body-sm text-body-sm text-on-surface" id="activeStatusLabel">Parsing QR code &amp; mobile vCard payload...</span>
+</div>
+<span class="font-label-sm text-label-sm text-primary">0.4s</span>
+</div>
+</div>
+<!-- Item 4: Sophia Lin (Queued) -->
+<div class="bg-surface-container-lowest/70 rounded-xl p-space-md shadow-sm flex items-center justify-between gap-space-sm opacity-85">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="w-12 h-12 rounded-lg bg-surface-container overflow-hidden shrink-0 relative flex items-center justify-center">
+<img class="w-full h-full object-cover filter grayscale opacity-75" data-alt="Clean playful contemporary pastel aesthetic typography card design for Sophia Lin Design Director at Figma" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtiQW07YbxrAnBaJCsLN-gBe9deeSdNFh923E0EATJKIjNPBqo49vfoJP75PD-KhtvPRToB7bV2m8g1CWsQHx4b-U1GnB4ixe1DhqFO6kSeW3VljEAGbGHjP4zOLsHH3BPTMz4XkR0hyvdr2lflLVZOUvPID4_7luvss00omzQKVal5EZyEyRGxJ_3qNmomnJHY0DtgsOMpR3Bq0D-qYtoqpxkH8nbI1LFkydet1-DH8ZHhnCTTksu-g"/>
+<div class="absolute inset-0 bg-surface-container-highest/40 flex items-center justify-center">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">schedule</span>
+</div>
+</div>
+<div class="min-w-0">
+<h3 class="font-label-lg text-label-lg text-on-surface truncate">Sophia Lin</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant truncate">Design Director · Figma</p>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full font-label-sm text-label-sm shrink-0">
+<span class="material-symbols-outlined text-[13px]">hourglass_empty</span>
+          In Queue
+        </span>
+</div>
+</div>
+<!-- AI Enrichment Micro-Banner -->
+<div class="bg-gradient-to-r from-primary-fixed/50 via-surface-container-lowest to-secondary-fixed/50 rounded-xl p-space-md shadow-sm flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">Automated Web &amp; Domain Enrichment</span>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">
+          Auto-enriching with LinkedIn, company domain DNS data, brand logos, and direct office address routing.
+        </p>
+</div>
+</div>
+<!-- Interactive Triage Stats / Quick Metrics -->
+<div class="grid grid-cols-3 gap-space-xs pt-1">
+<div class="bg-surface-container-lowest rounded-xl p-space-xs text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Precision</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">99.8%</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-xs text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Fields</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">18 Found</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-space-xs text-center shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant block">Enriched</span>
+<span class="font-headline-sm text-headline-sm text-tertiary">2 Logos</span>
+</div>
+</div>
+</div>
+<!-- Bottom Floating Execution Dock -->
+<div class="sticky bottom-0 w-full bg-surface-container-lowest/90 backdrop-blur-xl p-margin shadow-xl flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<button class="flex-1 h-12 bg-surface-container-low text-on-surface hover:bg-surface-container active:scale-[0.98] rounded-xl font-label-lg text-label-lg transition-all flex items-center justify-center gap-1.5 shadow-sm" id="bgProcessBtn" type="button">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">move_to_inbox</span>
+        Run in Background
+      </button>
+<button class="flex-1 h-12 bg-primary-container text-on-primary active:scale-[0.98] rounded-xl font-label-lg text-label-lg transition-all flex items-center justify-center gap-1.5 shadow-md" id="viewCompletedBtn" type="button">
+<span>View Completed (2)</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</div>
+<!-- Status Toast Pill -->
+<div class="flex items-center justify-center gap-space-xs text-on-surface-variant font-label-sm text-label-sm pt-1">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Haptic notifications ready on full completion</span>
+</div>
+</div>
+</div>
+<script>
+  (function() {
+    // Dynamic progress bar simulation for Marcus Vance
+    const bar = document.getElementById('activeProgressBar');
+    const label = document.getElementById('activeStatusLabel');
+    const pauseBtn = document.getElementById('pauseToggleBtn');
+    const bgBtn = document.getElementById('bgProcessBtn');
+    const viewBtn = document.getElementById('viewCompletedBtn');
+
+    let currentProgress = 85;
+    let isPaused = false;
+
+    const interval = setInterval(() => {
+      if (isPaused) return;
+      if (currentProgress < 98) {
+        currentProgress += 1.5;
+        if (bar) bar.style.width = currentProgress + '%';
+        if (currentProgress > 92 && label) {
+          label.textContent = "Finalizing contact card enrichment...";
+        }
+      } else {
+        clearInterval(interval);
+      }
+    }, 400);
+
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        isPaused = !isPaused;
+        pauseBtn.innerHTML = isPaused
+          ? `<span class="material-symbols-outlined text-[14px]">play_arrow</span> Resume Triaging`
+          : `<span class="material-symbols-outlined text-[14px]">pause</span> Pause Triaging`;
+      });
+    }
+
+    if (bgBtn) {
+      bgBtn.addEventListener('click', () => {
+        const originalText = bgBtn.innerHTML;
+        bgBtn.innerHTML = `<span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span> Backgrounded`;
+        setTimeout(() => {
+          bgBtn.innerHTML = originalText;
+        }, 1800);
+      });
+    }
+
+    if (viewBtn) {
+      viewBtn.addEventListener('click', () => {
+        viewBtn.classList.add('scale-95');
+        setTimeout(() => viewBtn.classList.remove('scale-95'), 150);
+      });
+    }
+  })();
+</script></main></body></html>
