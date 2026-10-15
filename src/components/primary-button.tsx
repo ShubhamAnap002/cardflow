@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import { Icon, type IconName } from '@/components/icon';
-import { colors, radii, shadows, spacing, type } from '@/constants/theme';
+import { colors, radii, spacing, type } from '@/constants/theme';
 
 type Variant = 'primary' | 'tonal' | 'ghost' | 'onPrimary';
 
@@ -55,7 +55,7 @@ export function PrimaryButton({
       style={({ pressed }) => [
         styles.button,
         compact && styles.compact,
-        variant === 'primary' && shadows.card,
+        variant === 'primary' && styles.primaryShadow,
         { backgroundColor: pressed ? tint.pressed : tint.bg },
         inactive && styles.disabled,
         style,
@@ -85,7 +85,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   compact: { minHeight: 40, paddingHorizontal: spacing.md },
-  row: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs,
+  },
   label: { ...type.labelLg, fontWeight: '700' },
   disabled: { opacity: 0.6 },
+  primaryShadow: {
+    shadowColor: colors.primary,
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 5,
+  },
 });

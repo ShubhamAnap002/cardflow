@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 16.0.0",
+    "version": ">= 16.0.0 < 17.0.0",
     "appVersionSource": "remote"
   },
   "build": {
@@ -9,6 +9,9 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_ALLOW_LOCAL_PRO": "1"
       }
     },
     "preview": {
@@ -16,6 +19,18 @@
       "channel": "preview",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_PRIVACY_URL": "https://shy-fog-9658.shubhamanap02.workers.dev/",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "shubhamanap01@gmail.com",
+        "EXPO_PUBLIC_API_URL": "https://cardflow-ocr.shubhamanap02.workers.dev",
+        "EXPO_PUBLIC_ALLOW_LOCAL_PRO": "1",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bjhimkifrkcnkcyhifav.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqaGlta2lmcmtjbmtjeWhpZmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNjUzMzIsImV4cCI6MjEwNTY0MTMzMn0.TMfaGZvuLZXBDoZF_xhOKF23PRBVTBrJI308cFxKn4w",
+        "EXPO_PUBLIC_ADMOB_ANDROID_APP_ID": "ca-app-pub-7639757350230280~3258766841",
+        "EXPO_PUBLIC_ADMOB_BANNER_ID": "ca-app-pub-7639757350230280/2231344374",
+        "EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID": "ca-app-pub-7639757350230280/3584877931",
+        "EXPO_PUBLIC_ADMOB_REWARDED_ID": "ca-app-pub-7639757350230280/5567954155"
       }
     },
     "production": {
@@ -24,6 +39,18 @@
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_PRIVACY_URL": "https://shy-fog-9658.shubhamanap02.workers.dev/",
+        "EXPO_PUBLIC_SUPPORT_EMAIL": "shubhamanap01@gmail.com",
+        "EXPO_PUBLIC_API_URL": "https://cardflow-ocr.shubhamanap02.workers.dev",
+        "EXPO_PUBLIC_ALLOW_LOCAL_PRO": "0",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bjhimkifrkcnkcyhifav.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJqaGlta2lmcmtjbmtjeWhpZmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAwNjUzMzIsImV4cCI6MjEwNTY0MTMzMn0.TMfaGZvuLZXBDoZF_xhOKF23PRBVTBrJI308cFxKn4w",
+        "EXPO_PUBLIC_ADMOB_ANDROID_APP_ID": "ca-app-pub-7639757350230280~3258766841",
+        "EXPO_PUBLIC_ADMOB_BANNER_ID": "ca-app-pub-7639757350230280/2231344374",
+        "EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID": "ca-app-pub-7639757350230280/3584877931",
+        "EXPO_PUBLIC_ADMOB_REWARDED_ID": "ca-app-pub-7639757350230280/5567954155"
       }
     }
   },

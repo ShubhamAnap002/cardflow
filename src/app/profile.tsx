@@ -20,27 +20,35 @@ import { Screen, ScreenBody } from '@/components/screen';
 import { colors, radii, shadows, spacing, type } from '@/constants/theme';
 import { notify } from '@/lib/feedback';
 import { DEFAULT_PROFILE, initialsOf, loadProfile, saveProfile, type Profile } from '@/lib/storage';
+import { looksLikeWebsiteUrl } from '@/lib/website-url';
 
-type FieldKey = 'name' | 'title' | 'company' | 'email' | 'phone';
+type FieldKey = 'name' | 'title' | 'company' | 'email' | 'phone' | 'website';
 
 const FIELDS: {
   key: FieldKey;
   label: string;
   placeholder: string;
-  keyboardType?: 'default' | 'email-address' | 'phone-pad';
+  keyboardType?: 'default' | 'email-address' | 'phone-pad' | 'url';
   autoCapitalize?: 'none' | 'words';
 }[] = [
-  { key: 'name', label: 'Full name', placeholder: 'Alex Rivera' },
-  { key: 'title', label: 'Job title', placeholder: 'Founder' },
-  { key: 'company', label: 'Company', placeholder: 'CardFlow' },
+  { key: 'name', label: 'Full name', placeholder: 'Full name' },
+  { key: 'title', label: 'Job title', placeholder: 'Job title' },
+  { key: 'company', label: 'Company', placeholder: 'Company' },
   {
     key: 'email',
     label: 'Email',
-    placeholder: 'you@company.com',
+    placeholder: 'Email',
     keyboardType: 'email-address',
     autoCapitalize: 'none',
   },
-  { key: 'phone', label: 'Phone', placeholder: '+1 415 555 0142', keyboardType: 'phone-pad' },
+  { key: 'phone', label: 'Phone', placeholder: 'Phone', keyboardType: 'phone-pad' },
+  {
+    key: 'website',
+    label: 'Website',
+    placeholder: 'Website',
+    keyboardType: 'url',
+    autoCapitalize: 'none',
+  },
 ];
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -94,6 +102,9 @@ export default function ProfileScreen() {
     if (profile.phone.trim() && profile.phone.replace(/\D/g, '').length < 7) {
       found.phone = 'Enter a valid phone number.';
     }
+    if (profile.website.trim() && !looksLikeWebsiteUrl(profile.website)) {
+      found.website = 'Enter a valid website (e.g. example.com).';
+    }
 
     setErrors(found);
     if (Object.keys(found).length > 0) return;
@@ -107,6 +118,7 @@ export default function ProfileScreen() {
         company: profile.company.trim(),
         email: profile.email.trim(),
         phone: profile.phone.trim(),
+        website: profile.website.trim(),
       });
       notify('Profile updated.');
       router.back();
@@ -151,10 +163,18 @@ export default function ProfileScreen() {
               This is the card CardFlow shares when you send your details to someone.
             </Text>
 
+            <PrimaryButton
+              label="My QR code"
+              variant="tonal"
+              icon="qr_code_2"
+              onPress={() => router.push('/my-qr')}
+            />
+
             {FIELDS.map((field) => (
               <View key={field.key} style={styles.field}>
                 <Text style={styles.label}>{field.label}</Text>
                 <TextInput
+                  accessibilityLabel={field.label}
                   value={profile[field.key]}
                   onChangeText={(value) => change(field.key, value)}
                   placeholder={field.placeholder}

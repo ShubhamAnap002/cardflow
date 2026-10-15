@@ -1,9 +1,10 @@
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppHeader } from '@/components/app-header';
 import { Avatar } from '@/components/avatar';
+import { CardPair } from '@/components/card-pair';
 import { Chip } from '@/components/chip';
 import { Icon, type IconName } from '@/components/icon';
 import { PrimaryButton } from '@/components/primary-button';
@@ -12,14 +13,17 @@ import { EmptyState } from '@/components/tiles';
 import { colors, radii, shadows, spacing, type } from '@/constants/theme';
 import { callNumber, openMap, openWebsite, sendEmail, shareContact } from '@/lib/actions';
 import { confirm, notify } from '@/lib/feedback';
+import { paramString } from '@/lib/route-params';
 import {
   deleteContact,
   getContact,
   initialsOf,
   relativeDate,
   toggleFavorite,
+  updateContact,
   type Contact,
 } from '@/lib/storage';
+import { syncLeadToEnerTechCrm } from '@/lib/crm';
 
 function Detail({
   icon,
@@ -55,13 +59,21 @@ function Detail({
 }
 
 export default function ContactDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const id = paramString(params.id);
   const [contact, setContact] = useState<Contact | undefined>();
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     useCallback(() => {
       let active = true;
+      if (!id) {
+        setContact(undefined);
+        setLoading(false);
+        return () => {
+          active = false;
+        };
+      }
       void getContact(id).then((found) => {
         if (!active) return;
         setContact(found);
@@ -75,16 +87,24 @@ export default function ContactDetailScreen() {
 
   async function onToggleFavorite() {
     if (!contact) return;
-    await toggleFavorite(contact.id);
-    setContact({ ...contact, favorite: !contact.favorite });
+    try {
+      await toggleFavorite(contact.id);
+      setContact({ ...contact, favorite: !contact.favorite });
+    } catch {
+      notify('Could not update favorite.');
+    }
   }
 
   function onDelete() {
     if (!contact) return;
     confirm('Delete contact?', `${contact.name} will be removed from this device.`, 'Delete', async () => {
-      await deleteContact(contact.id);
-      notify('Contact deleted.');
-      router.back();
+      try {
+        await deleteContact(contact.id);
+        notify('Contact deleted.');
+        router.back();
+      } catch {
+        notify('Could not delete that contact.');
+      }
     });
   }
 
@@ -92,6 +112,9 @@ export default function ContactDetailScreen() {
     return (
       <Screen>
         <AppHeader title="Contact" onBack={() => router.back()} />
+        <View style={styles.loading}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
       </Screen>
     );
   }
@@ -111,11 +134,33 @@ export default function ContactDetailScreen() {
     );
   }
 
+  const [syncingCrm, setSyncingCrm] = useState(false);
+
+  async function onManualCrmSync() {
+    if (!contact) return;
+    setSyncingCrm(true);
+    try {
+      const res = await syncLeadToEnerTechCrm(contact);
+      if (res.ok && res.leadId) {
+        await updateContact(contact.id, {
+          crmLeadId: res.leadId,
+          crmSyncStatus: 'synced',
+        });
+        setContact({ ...contact, crmLeadId: res.leadId, crmSyncStatus: 'synced' });
+        notify('Synced to EnerTech CRM (Source: EXPO)!');
+      } else {
+        notify(`CRM Sync: ${res.error || 'Failed'}`);
+      }
+    } finally {
+      setSyncingCrm(false);
+    }
+  }
+
   const lowConfidence = (contact.confidence ?? 100) < 90;
 
   return (
     <Screen>
-      <AppHeader title="Contact" eyebrow="CARDFLOW AI" onBack={() => router.back()} />
+      <AppHeader title="Contact" eyebrow="CARDFLOW" onBack={() => router.back()} />
 
       <ScreenBody contentStyle={styles.content}>
         <View style={styles.hero}>
@@ -126,14 +171,33 @@ export default function ContactDetailScreen() {
           </Text>
 
           <View style={styles.badges}>
+            {contact.leadLevel ? (
+              <Chip label={contact.leadLevel} icon="workspace_premium" tone="success" />
+            ) : null}
+            {contact.leadType ? (
+              <Chip label={contact.leadType} icon="language" tone="neutral" />
+            ) : null}
+            {contact.scope ? (
+              <Chip label={`Scope: ${contact.scope}`} icon="style" tone="neutral" />
+            ) : null}
+            {contact.crmSyncStatus === 'synced' ? (
+              <Chip label="✓ EnerTech CRM" icon="cloud_done" tone="success" />
+            ) : (
+              <Chip
+                label={syncingCrm ? 'Syncing...' : 'Sync to CRM'}
+                icon="cloud_upload"
+                tone="warning"
+                onPress={onManualCrmSync}
+              />
+            )}
             {contact.group ? <Chip label={contact.group} icon="folder_shared" /> : null}
             {lowConfidence ? (
               <Chip label="Needs review" icon="error" tone="warning" />
+            ) : contact.source === 'qr' ? (
+              <Chip label="From QR" icon="qr_code_2" tone="neutral" />
             ) : contact.confidence != null ? (
-              <Chip label={`${contact.confidence}% confident`} icon="verified" tone="success" />
-            ) : (
-              <Chip label="Saved on device" icon="check_circle" tone="success" />
-            )}
+              <Chip label={`${contact.confidence}% confident`} icon="verified" tone="neutral" />
+            ) : null}
           </View>
 
           <View style={styles.heroActions}>
@@ -142,6 +206,7 @@ export default function ContactDetailScreen() {
               icon="call"
               compact
               style={styles.flex}
+              disabled={!contact.phone?.trim()}
               onPress={() => callNumber(contact.phone)}
             />
             <PrimaryButton
@@ -150,10 +215,11 @@ export default function ContactDetailScreen() {
               variant="tonal"
               compact
               style={styles.flex}
+              disabled={!contact.email?.trim()}
               onPress={() => sendEmail(contact.email)}
             />
             <PrimaryButton
-              label="Share"
+              label="Share text"
               icon="share"
               variant="ghost"
               compact
@@ -163,16 +229,29 @@ export default function ContactDetailScreen() {
           </View>
         </View>
 
-        {contact.cardUri ? (
-          <Image source={{ uri: contact.cardUri }} style={styles.card} resizeMode="cover" />
-        ) : null}
+        <CardPair frontUri={contact.cardUri} backUri={contact.cardUriBack} />
 
         <View style={styles.details}>
           {contact.phone ? (
-            <Detail icon="call" label="Phone" value={contact.phone} onPress={() => callNumber(contact.phone)} />
+            <Detail icon="call" label="Mobile (Primary)" value={contact.phone} onPress={() => callNumber(contact.phone)} />
+          ) : null}
+          {contact.phone2 ? (
+            <Detail icon="call" label="Mobile 2 (Secondary)" value={contact.phone2} onPress={() => callNumber(contact.phone2)} />
           ) : null}
           {contact.email ? (
-            <Detail icon="mail" label="Email" value={contact.email} onPress={() => sendEmail(contact.email)} />
+            <Detail icon="mail" label="Email (Primary)" value={contact.email} onPress={() => sendEmail(contact.email)} />
+          ) : null}
+          {contact.email2 ? (
+            <Detail icon="mail" label="Email 2 (Secondary)" value={contact.email2} onPress={() => sendEmail(contact.email2)} />
+          ) : null}
+          {contact.products && contact.products.length > 0 ? (
+            <Detail icon="shopping_bag" label="Products Interested" value={contact.products.join(', ')} />
+          ) : null}
+          {contact.remark ? (
+            <Detail icon="comment" label="Remarks" value={contact.remark} />
+          ) : null}
+          {contact.voiceTranscript && contact.voiceTranscript !== contact.remark ? (
+            <Detail icon="record_voice_over" label="Voice Transcript" value={contact.voiceTranscript} />
           ) : null}
           {contact.website ? (
             <Detail
@@ -195,6 +274,12 @@ export default function ContactDetailScreen() {
         </View>
 
         <View style={styles.footerActions}>
+          <PrimaryButton
+            label="Show QR"
+            icon="qr_code_2"
+            variant="tonal"
+            onPress={() => router.push(`/contact-qr?id=${contact.id}`)}
+          />
           <PrimaryButton
             label={contact.favorite ? 'Remove favorite' : 'Add to favorites'}
             icon={contact.favorite ? 'star' : 'star_border'}
@@ -224,6 +309,7 @@ export default function ContactDetailScreen() {
 
 const styles = StyleSheet.create({
   content: { gap: spacing.sm },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   flex: { flex: 1 },
   pressed: { backgroundColor: colors.surfaceLow },
   hero: {
@@ -244,12 +330,6 @@ const styles = StyleSheet.create({
     marginTop: spacing.xxs,
   },
   heroActions: { flexDirection: 'row', gap: spacing.xs, alignSelf: 'stretch', marginTop: spacing.sm },
-  card: {
-    width: '100%',
-    aspectRatio: 1.7,
-    borderRadius: radii.lg,
-    backgroundColor: colors.surfaceHigh,
-  },
   details: {
     backgroundColor: colors.surface,
     borderRadius: radii.xl,

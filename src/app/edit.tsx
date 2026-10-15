@@ -20,6 +20,7 @@ import { colors, shadows, spacing } from '@/constants/theme';
 import { notify } from '@/lib/feedback';
 import { getContact, updateContact } from '@/lib/storage';
 import { useCardflow } from '@/lib/use-cardflow';
+import { syncLeadToEnerTechCrm } from '@/lib/crm';
 
 export default function EditContactScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -65,7 +66,18 @@ export default function EditContactScreen() {
     setSaving(true);
     try {
       await updateContact(id, toContact(draft));
-      notify('Contact updated.');
+
+      // Asynchronously push update to EnerTech CRM
+      const updatedContact = await getContact(id);
+      if (updatedContact) {
+        void syncLeadToEnerTechCrm(updatedContact).then(async (res) => {
+          if (res.ok && res.leadId) {
+            await updateContact(id, { crmLeadId: res.leadId, crmSyncStatus: 'synced' });
+          }
+        });
+      }
+
+      notify('Contact updated & synced to CRM.');
       router.back();
     } catch {
       notify('Could not save those changes.');
@@ -95,7 +107,13 @@ export default function EditContactScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScreenBody>
-            <ContactForm draft={draft} errors={errors} groups={groups} onChange={change} />
+            <ContactForm
+              draft={draft}
+              errors={errors}
+              groups={groups}
+              onChange={change}
+              detectedLines={draft.rawOcrLines}
+            />
           </ScreenBody>
 
           <View style={[styles.footer, { paddingBottom: insets.bottom + spacing.sm }]}>

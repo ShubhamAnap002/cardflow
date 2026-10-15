@@ -10,6 +10,7 @@ import { Screen, useBottomInset } from '@/components/screen';
 import { EmptyState } from '@/components/tiles';
 import { colors, radii, shadows, spacing, type } from '@/constants/theme';
 import { callNumber, sendEmail } from '@/lib/actions';
+import { notify } from '@/lib/feedback';
 import { initialsOf, toggleFavorite, type Contact } from '@/lib/storage';
 import { useCardflow } from '@/lib/use-cardflow';
 
@@ -52,7 +53,11 @@ export default function ContactsScreen() {
   }, [contacts, filter, group, query]);
 
   async function onToggleFavorite(id: string) {
-    setContacts(await toggleFavorite(id));
+    try {
+      setContacts(await toggleFavorite(id));
+    } catch {
+      notify('Could not update favorite.');
+    }
   }
 
   const activeCount = contacts.length;
@@ -63,6 +68,7 @@ export default function ContactsScreen() {
         title="Contacts"
         profile={{ initials: initialsOf(profile.name), uri: profile.avatarUri }}
         onProfile={() => router.push('/profile')}
+        onSettings={() => router.navigate('/settings')}
       />
 
       <FlatList
@@ -76,6 +82,7 @@ export default function ContactsScreen() {
             <View style={styles.search}>
               <Icon name="search" size={19} color={colors.outline} />
               <TextInput
+                accessibilityLabel="Search contacts"
                 value={query}
                 onChangeText={setQuery}
                 placeholder={`Search ${activeCount} contacts`}
@@ -108,6 +115,7 @@ export default function ContactsScreen() {
                 onPress={() => {
                   setFilter('all');
                   setGroup(undefined);
+                  router.setParams({ filter: 'all', group: undefined });
                 }}
               />
               <Chip
@@ -115,8 +123,10 @@ export default function ContactsScreen() {
                 icon="star"
                 selected={filter === 'favorites'}
                 onPress={() => {
-                  setFilter(filter === 'favorites' ? 'all' : 'favorites');
+                  const next = filter === 'favorites' ? 'all' : 'favorites';
+                  setFilter(next);
                   setGroup(undefined);
+                  router.setParams({ filter: next, group: undefined });
                 }}
               />
               <Chip
@@ -125,8 +135,10 @@ export default function ContactsScreen() {
                 tone="warning"
                 selected={filter === 'review'}
                 onPress={() => {
-                  setFilter(filter === 'review' ? 'all' : 'review');
+                  const next = filter === 'review' ? 'all' : 'review';
+                  setFilter(next);
                   setGroup(undefined);
+                  router.setParams({ filter: next, group: undefined });
                 }}
               />
               {groups.map((item) => (
@@ -134,7 +146,12 @@ export default function ContactsScreen() {
                   key={item.id}
                   label={item.name}
                   selected={group === item.name}
-                  onPress={() => setGroup(group === item.name ? undefined : item.name)}
+                  onPress={() => {
+                    const next = group === item.name ? undefined : item.name;
+                    setGroup(next);
+                    setFilter('all');
+                    router.setParams({ group: next, filter: 'all' });
+                  }}
                 />
               ))}
             </ScrollView>

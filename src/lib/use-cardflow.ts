@@ -1,6 +1,7 @@
 import { useFocusEffect } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
+import { onLocalDataChanged } from '@/lib/consent';
 import {
   DEFAULT_PROFILE,
   listContacts,
@@ -23,6 +24,7 @@ const EMPTY: Store = { loading: true, profile: DEFAULT_PROFILE, contacts: [], gr
 /**
  * Reads the whole (tiny) local store and refreshes on every focus, so saving a
  * scan or editing a profile is reflected the moment you land back on a screen.
+ * Also reloads when local data is wiped (sign-out / account switch).
  */
 export function useCardflow() {
   const [store, setStore] = useState<Store>(EMPTY);
@@ -45,6 +47,12 @@ export function useCardflow() {
       };
     }, [load])
   );
+
+  useEffect(() => {
+    return onLocalDataChanged(() => {
+      void load(() => true);
+    });
+  }, [load]);
 
   const reload = useCallback(() => load(() => true), [load]);
 

@@ -6,6 +6,8 @@ const PROFILE_KEY = 'cardflow.profile.v1';
 const CONTACTS_KEY = 'cardflow.contacts.v1';
 const GROUPS_KEY = 'cardflow.groups.v1';
 const SETTINGS_KEY = 'cardflow.settings.v1';
+const PRODUCTS_KEY = 'cardflow.products.v1';
+const CATEGORIES_KEY = 'cardflow.categories.v1';
 
 export type Profile = {
   name: string;
@@ -13,6 +15,7 @@ export type Profile = {
   company: string;
   email: string;
   phone: string;
+  website: string;
   avatarUri?: string;
 };
 
@@ -30,9 +33,39 @@ export type Contact = {
   favorite?: boolean;
   /** Local URI of the captured card image, when the contact came from a scan. */
   cardUri?: string;
+  /** Optional back-side card image. */
+  cardUriBack?: string;
   /** OCR confidence for scanned cards — drives the "needs review" badges. */
   confidence?: number;
+  /** How the contact was added — drives list status chips. */
+  source?: 'qr' | 'scan';
   createdAt: number;
+  /** Lead type classification: Domestic or International */
+  leadType?: 'Domestic' | 'International';
+  /** Lead priority tier */
+  leadLevel?: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+  /** Deal requirement scope: Bulk or Small */
+  scope?: 'Bulk' | 'Small';
+  /** Secondary phone number */
+  phone2?: string;
+  /** Secondary email address */
+  email2?: string;
+  /** Sales meeting remarks */
+  remark?: string;
+  /** Live speech-to-text transcript */
+  voiceTranscript?: string;
+  /** Local or remote URI to recorded voice remark */
+  audioUri?: string;
+  /** Products of interest */
+  products?: string[];
+  /** Associated ID in EnerTech Engage CRM */
+  crmLeadId?: string;
+  /** CRM synchronization status */
+  crmSyncStatus?: 'synced' | 'pending' | 'failed';
+  /** Last CRM error message if sync failed */
+  crmSyncError?: string;
+  /** Raw detected OCR text lines from business card */
+  rawOcrLines?: string[];
 };
 
 export type Group = {
@@ -47,132 +80,35 @@ export type Group = {
 export type NewContact = Omit<Contact, 'id' | 'createdAt'>;
 
 export type Settings = {
-  autoEnhance: boolean;
-  detectDuplicates: boolean;
-  wifiOnlySync: boolean;
+  /** Persist captured card photos with the contact. */
   saveCardImages: boolean;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
-  autoEnhance: true,
-  detectDuplicates: true,
-  wifiOnlySync: false,
   saveCardImages: true,
 };
 
 export const DEFAULT_PROFILE: Profile = {
-  name: 'Sarah Jenkins',
-  title: 'VP Partnerships',
-  company: 'CardFlow',
-  email: 'sarah@cardflow.app',
-  phone: '+1 415 555 0142',
+  name: '',
+  title: '',
+  company: '',
+  email: '',
+  phone: '',
+  website: '',
 };
 
 const DAY = 86_400_000;
 
-function seedContacts(now: number): Contact[] {
-  return [
-    {
-      id: 'c_marcus',
-      name: 'Marcus Vance',
-      title: 'Managing Partner',
-      company: 'Horizon Venture Capital',
-      email: 'm.vance@horizoncap.vc',
-      phone: '+1 415 890 2341',
-      website: 'horizoncap.vc',
-      address: '500 Howard St, Suite 400, San Francisco, CA',
-      group: 'Investors & VCs',
-      note: 'Met after the AI infrastructure panel. Send the portfolio deck by Tuesday.',
-      favorite: true,
-      confidence: 99,
-      createdAt: now - DAY,
-    },
-    {
-      id: 'c_alex',
-      name: 'Alex Morgan',
-      title: 'VP Product',
-      company: 'Stripe',
-      email: 'alex.morgan@stripe.com',
-      phone: '+1 415 555 0183',
-      website: 'stripe.com',
-      group: 'TechCrunch Disrupt 2026',
-      confidence: 98,
-      createdAt: now - DAY * 2,
-    },
-    {
-      id: 'c_elena',
-      name: 'Dr. Elena Rostova',
-      title: 'Chief Scientist',
-      company: 'DeepBio',
-      email: 'elena@deepbio.io',
-      phone: '+1 212 555 0114',
-      group: 'TechCrunch Disrupt 2026',
-      note: 'One phone digit was low confidence — verify before exporting.',
-      confidence: 82,
-      createdAt: now - DAY * 3,
-    },
-    {
-      id: 'c_maya',
-      name: 'Maya Patel',
-      title: 'Head of Growth',
-      company: 'Linear',
-      email: 'maya@linear.app',
-      phone: '+1 628 555 0177',
-      group: 'Enterprise Leads',
-      confidence: 97,
-      createdAt: now - DAY * 9,
-    },
-    {
-      id: 'c_michael',
-      name: 'Michael Chang',
-      title: 'Founder & CEO',
-      company: 'ArcLight',
-      email: 'michael@arclight.dev',
-      phone: '+1 917 555 0126',
-      group: 'SaaS Leaders Dinner',
-      favorite: true,
-      confidence: 96,
-      createdAt: now - DAY * 12,
-    },
-  ];
-}
-
-function seedGroups(now: number): Group[] {
-  return [
-    {
-      id: 'g_tc',
-      name: 'TechCrunch Disrupt 2026',
-      subtitle: 'Event auto-tag • San Francisco',
-      icon: 'confirmation_number',
-      tint: '#2563EB',
-      createdAt: now - DAY,
-    },
-    {
-      id: 'g_investors',
-      name: 'Investors & VCs',
-      subtitle: 'High engagement • Follow-up weekly',
-      icon: 'monetization_on',
-      tint: '#4648D4',
-      createdAt: now - DAY * 4,
-    },
-    {
-      id: 'g_enterprise',
-      name: 'Enterprise Leads',
-      subtitle: 'Sales pipeline • Qualified',
-      icon: 'domain',
-      tint: '#006242',
-      createdAt: now - DAY * 9,
-    },
-    {
-      id: 'g_dinner',
-      name: 'SaaS Leaders Dinner',
-      subtitle: 'Private gathering • Oct 12',
-      icon: 'restaurant',
-      tint: '#B42318',
-      createdAt: now - DAY * 12,
-    },
-  ];
-}
+/** Legacy demo IDs — stripped once if still present from older installs. */
+const DEMO_CONTACT_IDS = new Set([
+  'c_marcus',
+  'c_alex',
+  'c_elena',
+  'c_maya',
+  'c_michael',
+]);
+const DEMO_GROUP_IDS = new Set(['g_tc', 'g_investors', 'g_enterprise', 'g_dinner']);
+const DEMO_PROFILE_EMAIL = 'sarah@cardflow.app';
 
 async function readJson<T>(key: string, fallback: T): Promise<T> {
   try {
@@ -183,11 +119,11 @@ async function readJson<T>(key: string, fallback: T): Promise<T> {
   }
 }
 
-async function writeJson(key: string, value: unknown) {
+async function writeJson(key: string, value: unknown): Promise<void> {
   try {
     await AsyncStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // Storage failures must never crash a screen; the in-memory state still updates.
+    throw new Error('Could not save data on this device.');
   }
 }
 
@@ -199,7 +135,14 @@ function newId(prefix: string) {
 
 export async function loadProfile(): Promise<Profile> {
   const stored = await readJson<Partial<Profile> | null>(PROFILE_KEY, null);
-  return { ...DEFAULT_PROFILE, ...(stored ?? {}) };
+  if (!stored) return { ...DEFAULT_PROFILE };
+  const merged = { ...DEFAULT_PROFILE, ...stored };
+  // Drop the old demo profile if the user never customized it.
+  if (merged.email === DEMO_PROFILE_EMAIL && merged.name === 'Sarah Jenkins') {
+    await writeJson(PROFILE_KEY, DEFAULT_PROFILE);
+    return { ...DEFAULT_PROFILE };
+  }
+  return merged;
 }
 
 export async function saveProfile(profile: Profile): Promise<Profile> {
@@ -209,13 +152,16 @@ export async function saveProfile(profile: Profile): Promise<Profile> {
 
 /* ------------------------------- contacts ------------------------------- */
 
+/** AsyncStorage is the single source of truth for contacts on this device. */
 export async function listContacts(): Promise<Contact[]> {
   const stored = await readJson<Contact[] | null>(CONTACTS_KEY, null);
-  if (stored) return stored.slice().sort((a, b) => b.createdAt - a.createdAt);
+  if (!Array.isArray(stored)) return [];
 
-  const seeded = seedContacts(Date.now());
-  await writeJson(CONTACTS_KEY, seeded);
-  return seeded;
+  const cleaned = stored.filter((contact) => contact && !DEMO_CONTACT_IDS.has(contact.id));
+  if (cleaned.length !== stored.length) {
+    await writeJson(CONTACTS_KEY, cleaned);
+  }
+  return cleaned.slice().sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function getContact(id: string): Promise<Contact | undefined> {
@@ -259,11 +205,13 @@ export async function toggleFavorite(id: string): Promise<Contact[]> {
 
 export async function listGroups(): Promise<Group[]> {
   const stored = await readJson<Group[] | null>(GROUPS_KEY, null);
-  if (stored) return stored.slice().sort((a, b) => b.createdAt - a.createdAt);
+  if (!Array.isArray(stored)) return [];
 
-  const seeded = seedGroups(Date.now());
-  await writeJson(GROUPS_KEY, seeded);
-  return seeded;
+  const cleaned = stored.filter((group) => group && !DEMO_GROUP_IDS.has(group.id));
+  if (cleaned.length !== stored.length) {
+    await writeJson(GROUPS_KEY, cleaned);
+  }
+  return cleaned.slice().sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export async function addGroup(name: string, subtitle: string): Promise<Group> {
@@ -299,12 +247,12 @@ export async function saveSettings(settings: Settings): Promise<Settings> {
   return settings;
 }
 
-/** Wipes everything and lets the seed data come back on the next read. */
+/** Clears profile, contacts, groups, and settings — starts empty. */
 export async function resetDemoData(): Promise<void> {
   try {
     await AsyncStorage.multiRemove([PROFILE_KEY, CONTACTS_KEY, GROUPS_KEY, SETTINGS_KEY]);
   } catch {
-    // Nothing to recover from — the caller just re-reads and gets the seeds.
+    // Nothing to recover from — the caller re-reads empty defaults.
   }
 }
 
@@ -371,7 +319,7 @@ export function recentBatches(contacts: Contact[], limit = 3): Batch[] {
 export function initialsOf(name: string): string {
   const parts = name.trim().split(/\s+/).filter((part) => /[A-Za-z]/.test(part[0] ?? ''));
   const letters = parts.slice(0, 2).map((part) => part[0]?.toUpperCase() ?? '');
-  return letters.join('') || 'C';
+  return letters.join('') || '?';
 }
 
 export function relativeDate(timestamp: number): string {
@@ -381,3 +329,89 @@ export function relativeDate(timestamp: number): string {
   if (days < 7) return `${days} days ago`;
   return new Date(timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
+
+/* ------------------------------- products ------------------------------- */
+
+export type Product = {
+  id: string;
+  name: string;
+  category: string;
+  imageUrl?: string;
+  description?: string;
+  createdAt: number;
+};
+
+export async function listProducts(): Promise<Product[]> {
+  const stored = await readJson<Product[] | null>(PRODUCTS_KEY, null);
+  if (!Array.isArray(stored)) return [];
+  return stored.slice().sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export async function addProduct(
+  name: string,
+  category: string,
+  extra?: { imageUrl?: string; description?: string }
+): Promise<Product> {
+  const products = await listProducts();
+  const product: Product = {
+    id: newId('prod'),
+    name: name.trim(),
+    category: category.trim() || 'General',
+    imageUrl: extra?.imageUrl?.trim() || undefined,
+    description: extra?.description?.trim() || undefined,
+    createdAt: Date.now(),
+  };
+  await writeJson(PRODUCTS_KEY, [product, ...products]);
+
+  // Ensure category is tracked
+  if (product.category) {
+    await addCategory(product.category);
+  }
+
+  return product;
+}
+
+export async function updateProduct(
+  id: string,
+  patch: Partial<Omit<Product, 'id' | 'createdAt'>>
+): Promise<Product[]> {
+  const products = await listProducts();
+  const next = products.map((p) => (p.id === id ? { ...p, ...patch } : p));
+  await writeJson(PRODUCTS_KEY, next);
+  return next;
+}
+
+export async function deleteProduct(id: string): Promise<Product[]> {
+  const products = await listProducts();
+  const next = products.filter((p) => p.id !== id);
+  await writeJson(PRODUCTS_KEY, next);
+  return next;
+}
+
+/* ------------------------------ categories ------------------------------ */
+
+export async function listCategories(): Promise<string[]> {
+  const stored = await readJson<string[] | null>(CATEGORIES_KEY, null);
+  if (!Array.isArray(stored)) return [];
+  return stored;
+}
+
+export async function addCategory(categoryName: string): Promise<string[]> {
+  const clean = categoryName.trim();
+  if (!clean) return listCategories();
+  const categories = await listCategories();
+  if (categories.some((c) => c.toLowerCase() === clean.toLowerCase())) {
+    return categories;
+  }
+  const next = [...categories, clean];
+  await writeJson(CATEGORIES_KEY, next);
+  return next;
+}
+
+export async function deleteCategory(categoryName: string): Promise<string[]> {
+  const categories = await listCategories();
+  const next = categories.filter((c) => c.toLowerCase() !== categoryName.toLowerCase());
+  await writeJson(CATEGORIES_KEY, next);
+  return next;
+}
+

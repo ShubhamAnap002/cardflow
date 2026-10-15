@@ -1,0 +1,19 @@
+---
+description: Keep PROJECT_CONTEXT.md current for CardFlow status and APK/launch tracking
+alwaysApply: true
+---
+
+# Project context tracking
+
+At the start of substantive work, read `PROJECT_CONTEXT.md` if it exists.
+
+After meaningful progress (feature done, blocker found, launch step finished, build profile change), update `PROJECT_CONTEXT.md`:
+
+- Bump **Last updated** date
+- Refresh **Current state** table rows that changed
+- Adjust **Active work / next priorities**
+- Add a short **Changelog** line
+
+Do not put secrets, API keys, service role keys, or full `.env` contents in that file.
+
+When the user asks “where are we” or status, prefer summarizing from `PROJECT_CONTEXT.md` plus git status.

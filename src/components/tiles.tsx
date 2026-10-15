@@ -1,5 +1,7 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ScanCorners } from '@/components/brand';
 import { Icon, type IconName } from '@/components/icon';
 import { colors, radii, shadows, spacing, type } from '@/constants/theme';
 
@@ -56,23 +58,26 @@ export function QuickAction({ label, icon, tint = colors.primary, onPress }: Act
   );
 }
 
-/** Empty-state block used by the contacts and groups lists. */
 export function EmptyState({
   icon,
   title,
   body,
+  action,
 }: {
   icon: IconName;
   title: string;
   body: string;
+  action?: ReactNode;
 }) {
   return (
-    <View style={styles.empty}>
+    <View style={styles.empty} accessibilityLabel={`${title}. ${body}`}>
+      <ScanCorners inset={12} color={colors.scanAccent} />
       <View style={styles.emptyIcon}>
         <Icon name={icon} size={26} color={colors.primary} />
       </View>
       <Text style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.emptyBody}>{body}</Text>
+      {action ? <View style={styles.emptyAction}>{action}</View> : null}
     </View>
   );
 }
@@ -83,6 +88,8 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     padding: spacing.sm,
     gap: 2,
     ...shadows.card,
@@ -96,20 +103,22 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xxs,
   },
   statValue: { ...type.headline, color: colors.onSurface },
-  statLabel: { ...type.label, color: colors.onSurfaceVariant, fontWeight: '500' },
+  statLabel: { ...type.label, color: colors.onSurfaceVariant },
   action: {
     flex: 1,
     alignItems: 'center',
     gap: spacing.xxs + 2,
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.xxs,
     ...shadows.card,
   },
   actionIcon: {
-    width: 38,
-    height: 38,
+    width: 40,
+    height: 40,
     borderRadius: radii.md,
     alignItems: 'center',
     justifyContent: 'center',
@@ -120,8 +129,11 @@ const styles = StyleSheet.create({
     gap: spacing.xxs,
     backgroundColor: colors.surface,
     borderRadius: radii.xl,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,
+    overflow: 'hidden',
     ...shadows.card,
   },
   emptyIcon: {
@@ -135,4 +147,5 @@ const styles = StyleSheet.create({
   },
   emptyTitle: { ...type.title, color: colors.onSurface },
   emptyBody: { ...type.bodySm, color: colors.onSurfaceVariant, textAlign: 'center' },
+  emptyAction: { marginTop: spacing.sm, alignSelf: 'stretch' },
 });

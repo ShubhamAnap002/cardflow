@@ -10,6 +10,7 @@ type Props = {
   onClose: () => void;
   onCamera: () => void;
   onGallery: () => void;
+  onQr?: () => void;
 };
 
 type OptionProps = {
@@ -47,7 +48,7 @@ function Option({ icon, tint, title, subtitle, disabled, onPress }: OptionProps)
 }
 
 /** Bottom sheet rendered inside the transparent `/scan` route. */
-export function ScanSourceSheet({ busy, onClose, onCamera, onGallery }: Props) {
+export function ScanSourceSheet({ busy, onClose, onCamera, onGallery, onQr }: Props) {
   const insets = useSafeAreaInsets();
   const slide = useRef(new Animated.Value(0)).current;
 
@@ -79,16 +80,17 @@ export function ScanSourceSheet({ busy, onClose, onCamera, onGallery }: Props) {
         ]}
       >
         <View style={styles.handle} />
-        <Text style={styles.title}>Scan a business card</Text>
-        <Text style={styles.sub}>
-          Lay the card flat and fill the frame — CardFlow reads the details for you.
-        </Text>
+        <View style={styles.brandRow}>
+          <Text style={styles.brandCard}>Card</Text>
+          <Text style={styles.brandFlow}>Flow</Text>
+        </View>
+        <Text style={styles.title}>Add a contact</Text>
 
         <Option
           icon="photo_camera"
           tint={colors.primary}
           title="Take a photo"
-          subtitle="Use the camera to capture a card"
+          subtitle="Scan a business card"
           disabled={busy}
           onPress={onCamera}
         />
@@ -96,10 +98,20 @@ export function ScanSourceSheet({ busy, onClose, onCamera, onGallery }: Props) {
           icon="photo_library"
           tint={colors.tertiary}
           title="Choose from gallery"
-          subtitle="Import a card you already photographed"
+          subtitle="Import a card photo"
           disabled={busy}
           onPress={onGallery}
         />
+        {onQr ? (
+          <Option
+            icon="qr_code_2"
+            tint={colors.secondary}
+            title="Scan QR code"
+            subtitle="vCard, contact card, or profile link"
+            disabled={busy}
+            onPress={onQr}
+          />
+        ) : null}
 
         <Pressable
           accessibilityRole="button"
@@ -138,10 +150,12 @@ const styles = StyleSheet.create({
     height: 4,
     borderRadius: 2,
     backgroundColor: colors.outlineVariant,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
-  title: { ...type.headline, color: colors.onSurface },
-  sub: { ...type.bodySm, color: colors.onSurfaceVariant, marginBottom: spacing.xxs },
+  brandRow: { flexDirection: 'row', alignItems: 'baseline' },
+  brandCard: { ...type.title, color: colors.onSurface },
+  brandFlow: { ...type.title, color: colors.primary },
+  title: { ...type.headline, color: colors.onSurface, marginBottom: spacing.xxs },
   option: {
     flexDirection: 'row',
     alignItems: 'center',

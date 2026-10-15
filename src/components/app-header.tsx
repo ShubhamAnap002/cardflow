@@ -1,32 +1,33 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Avatar } from '@/components/avatar';
+import { BrandWordmark } from '@/components/brand';
 import { Icon } from '@/components/icon';
 import { colors, radii, shadows, spacing, type } from '@/constants/theme';
+
+const brandIcon = require('../../assets/images/icon.png');
 
 type Props = {
   title: string;
   eyebrow?: string;
+  /** When true, show CardFlow wordmark instead of title stack (home). */
+  brandHome?: boolean;
   onBack?: () => void;
   onSettings?: () => void;
   profile?: { initials: string; uri?: string };
   onProfile?: () => void;
 };
 
-function LogoMark() {
-  return (
-    <View style={styles.logo}>
-      <View style={styles.logoCard}>
-        <View style={styles.logoLine} />
-        <View style={[styles.logoLine, styles.logoLineShort]} />
-      </View>
-      <View style={styles.logoDot} />
-    </View>
-  );
-}
-
-export function AppHeader({ title, eyebrow = 'CardFlow AI', onBack, onSettings, profile, onProfile }: Props) {
+export function AppHeader({
+  title,
+  eyebrow = 'CardFlow',
+  brandHome,
+  onBack,
+  onSettings,
+  profile,
+  onProfile,
+}: Props) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -44,16 +45,20 @@ export function AppHeader({ title, eyebrow = 'CardFlow AI', onBack, onSettings, 
               <Icon name="arrow_back" size={22} color={colors.onSurface} />
             </Pressable>
           ) : (
-            <LogoMark />
+            <Image source={brandIcon} style={styles.logo} resizeMode="cover" accessibilityLabel="CardFlow" />
           )}
-          <View style={styles.titles}>
-            <Text style={styles.eyebrow} numberOfLines={1}>
-              {eyebrow.toUpperCase()}
-            </Text>
-            <Text style={styles.title} numberOfLines={1}>
-              {title}
-            </Text>
-          </View>
+          {brandHome ? (
+            <BrandWordmark size="sm" />
+          ) : (
+            <View style={styles.titles}>
+              <Text style={styles.eyebrow} numberOfLines={1}>
+                {eyebrow.toUpperCase()}
+              </Text>
+              <Text style={styles.title} numberOfLines={1}>
+                {title}
+              </Text>
+            </View>
+          )}
         </View>
 
         <View style={styles.right}>
@@ -65,7 +70,7 @@ export function AppHeader({ title, eyebrow = 'CardFlow AI', onBack, onSettings, 
               onPress={onSettings}
               style={({ pressed }) => [styles.iconBtn, pressed && styles.iconBtnPressed]}
             >
-              <Icon name="settings" size={22} />
+              <Icon name="settings" size={22} color={colors.onSurfaceVariant} />
             </Pressable>
           ) : null}
           {profile ? (
@@ -76,7 +81,9 @@ export function AppHeader({ title, eyebrow = 'CardFlow AI', onBack, onSettings, 
               onPress={onProfile}
               style={({ pressed }) => [styles.avatarBtn, pressed && styles.iconBtnPressed]}
             >
-              <Avatar initials={profile.initials} uri={profile.uri} size={34} seed="me" />
+              <View style={styles.avatarRing}>
+                <Avatar initials={profile.initials} uri={profile.uri} size={32} seed="me" />
+              </View>
             </Pressable>
           ) : null}
         </View>
@@ -93,7 +100,7 @@ const styles = StyleSheet.create({
     ...shadows.card,
   },
   row: {
-    height: 56,
+    height: 58,
     paddingHorizontal: spacing.md,
     flexDirection: 'row',
     alignItems: 'center',
@@ -113,33 +120,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconBtnPressed: { backgroundColor: colors.surfaceLow },
-  avatarBtn: { padding: 3, borderRadius: radii.pill },
+  avatarBtn: { padding: 2, borderRadius: radii.pill },
+  avatarRing: {
+    borderRadius: radii.pill,
+    borderWidth: 2,
+    borderColor: colors.tertiaryFixed,
+    padding: 1,
+  },
   logo: {
     width: 36,
     height: 36,
     borderRadius: radii.md,
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoCard: {
-    width: 22,
-    height: 15,
-    borderRadius: 3,
-    backgroundColor: colors.onPrimary,
-    paddingHorizontal: 3,
-    paddingTop: 4,
-    gap: 2.5,
-  },
-  logoLine: { height: 2, borderRadius: 1, backgroundColor: colors.primary },
-  logoLineShort: { width: 9, backgroundColor: '#93C5FD' },
-  logoDot: {
-    position: 'absolute',
-    right: 6,
-    bottom: 7,
-    width: 7,
-    height: 7,
-    borderRadius: radii.pill,
-    backgroundColor: colors.tertiaryFixed,
   },
 });

@@ -1,7 +1,12 @@
 /**
- * Precision Slate & Royal Azure — the palette the Stitch designs were drawn in.
- * Keep every colour/size decision here so screens stay visually consistent.
+ * CardFlow light theme — product blue, white surfaces, dark ink.
  */
+
+export const fonts = {
+  regular: 'Outfit_400Regular',
+  medium: 'Outfit_500Medium',
+  bold: 'Outfit_700Bold',
+} as const;
 
 export const colors = {
   primary: '#2563EB',
@@ -9,31 +14,37 @@ export const colors = {
   primarySoft: '#DBEAFE',
   onPrimary: '#FFFFFF',
 
-  background: '#FAF8FF',
+  background: '#F8FAFC',
   surface: '#FFFFFF',
-  surfaceLow: '#F2F3FF',
-  surfaceContainer: '#EAEDFF',
-  surfaceHigh: '#E2E7FF',
-  surfaceHighest: '#DAE2FD',
+  surfaceLow: '#F1F5F9',
+  surfaceContainer: '#E2E8F0',
+  surfaceHigh: '#DBEAFE',
+  surfaceHighest: '#BFDBFE',
 
-  onSurface: '#131B2E',
-  onSurfaceVariant: '#434655',
-  outline: '#737686',
-  outlineVariant: '#C3C6D7',
+  onSurface: '#0F172A',
+  onSurfaceVariant: '#475569',
+  outline: '#64748B',
+  outlineVariant: '#CBD5E1',
 
-  secondary: '#4648D4',
-  secondarySoft: '#E1E0FF',
+  secondary: '#1E3A8A',
+  secondarySoft: '#DBEAFE',
 
-  tertiary: '#006242',
-  tertiarySoft: '#BDFFDB',
-  tertiaryFixed: '#6FFBBE',
+  tertiary: '#1D4ED8',
+  tertiarySoft: '#EFF6FF',
+  tertiaryFixed: '#93C5FD',
 
   error: '#BA1A1A',
   errorSoft: '#FFDAD6',
   onErrorSoft: '#93000A',
 
-  inverseSurface: '#283044',
-  inverseOnSurface: '#EEF0FF',
+  inverseSurface: '#0F172A',
+  inverseOnSurface: '#F8FAFC',
+
+  favorite: '#D97706',
+
+  /** Camera / live QR canvas (dark for contrast with the viewfinder). */
+  scanCanvas: '#0B1220',
+  scanAccent: '#93C5FD',
 } as const;
 
 export const spacing = {
@@ -54,47 +65,76 @@ export const radii = {
   pill: 999,
 } as const;
 
-/** Type ramp lifted from the Stitch tokens (Inter-like system font). */
 export const type = {
-  display: { fontSize: 26, lineHeight: 32, fontWeight: '700' },
-  headline: { fontSize: 22, lineHeight: 28, fontWeight: '700' },
-  title: { fontSize: 18, lineHeight: 24, fontWeight: '600' },
-  labelLg: { fontSize: 14, lineHeight: 20, fontWeight: '600' },
-  label: { fontSize: 12, lineHeight: 16, fontWeight: '600' },
-  eyebrow: { fontSize: 10, lineHeight: 14, fontWeight: '700', letterSpacing: 0.8 },
-  body: { fontSize: 14, lineHeight: 20, fontWeight: '400' },
-  bodySm: { fontSize: 12, lineHeight: 18, fontWeight: '400' },
+  display: {
+    fontFamily: fonts.bold,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.4,
+  },
+  headline: {
+    fontFamily: fonts.bold,
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.3,
+  },
+  title: {
+    fontFamily: fonts.bold,
+    fontSize: 18,
+    lineHeight: 24,
+  },
+  labelLg: {
+    fontFamily: fonts.medium,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  label: {
+    fontFamily: fonts.medium,
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  eyebrow: {
+    fontFamily: fonts.bold,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.2,
+  },
+  body: {
+    fontFamily: fonts.regular,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  bodySm: {
+    fontFamily: fonts.regular,
+    fontSize: 12,
+    lineHeight: 18,
+  },
 } as const;
 
 export const shadows = {
   card: {
-    shadowColor: '#131B2E',
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
   },
   raised: {
-    shadowColor: '#131B2E',
-    shadowOpacity: 0.12,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 6 },
+    shadowColor: '#2563EB',
+    shadowOpacity: 0.14,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 8 },
     elevation: 6,
   },
   fab: {
     shadowColor: '#2563EB',
-    shadowOpacity: 0.38,
-    shadowRadius: 12,
+    shadowOpacity: 0.4,
+    shadowRadius: 14,
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
 } as const;
 
-/** Height of the dock row in the custom tab bar (the safe-area inset sits below it). */
 export const TAB_BAR_HEIGHT = 60;
 
-/** How far the centre scan button rises above the dock. */
-export const FAB_LIFT = 22;
-
-/** Accent rotation used for avatars and group tiles. */
-export const ACCENTS = [colors.primary, colors.secondary, colors.tertiary, '#B42318'] as const;
+export const ACCENTS = [colors.primary, colors.secondary, colors.tertiaryFixed, '#1D4ED8'] as const;

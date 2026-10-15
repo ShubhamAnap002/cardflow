@@ -41,6 +41,12 @@ npx eas-cli build --platform android --profile production   # AAB, autoIncrement
 npx eas-cli submit --platform android
 ```
 
-`app.json` holds the version (`1.1.0`), package name `com.shubhamanap.cardflow` and the Android
+`app.json` holds the version (`1.2.0`), package name `com.shubhamanap.cardflow` and the Android
 permissions Play needs (`CAMERA`, `READ_MEDIA_IMAGES`); `eas.json` sets `buildType: app-bundle`
 for the production profile.
+
+## Docs
+- [`docs/OPS.md`](docs/OPS.md) — OCR Worker deploy
+- [`docs/PLAY_STORE.md`](docs/PLAY_STORE.md) — Play Console checklist
+- [`docs/privacy-policy.html`](docs/privacy-policy.html) — host this URL for Play
+

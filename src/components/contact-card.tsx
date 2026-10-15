@@ -14,7 +14,16 @@ type Props = {
 };
 
 export function ContactCard({ contact, onPress, onCall, onEmail, onToggleFavorite }: Props) {
-  const lowConfidence = (contact.confidence ?? 100) < 90;
+  const lowConfidence = contact.confidence != null && contact.confidence < 90;
+  const fromQr = contact.source === 'qr';
+  const fromScan = contact.source === 'scan' || Boolean(contact.cardUri);
+  const status = lowConfidence
+    ? ({ icon: 'error' as const, text: 'Needs review', warn: true })
+    : fromQr
+      ? ({ icon: 'qr_code_2' as const, text: 'From QR', warn: false })
+      : fromScan
+        ? ({ icon: 'document_scanner' as const, text: 'From scan', warn: false })
+        : ({ icon: 'check_circle' as const, text: 'On device', warn: false });
 
   return (
     <Pressable
@@ -30,7 +39,7 @@ export function ContactCard({ contact, onPress, onCall, onEmail, onToggleFavorit
             <Text style={styles.name} numberOfLines={1}>
               {contact.name}
             </Text>
-            {contact.favorite ? <Icon name="star" size={16} color="#F59E0B" /> : null}
+            {contact.favorite ? <Icon name="star" size={16} color={colors.favorite} /> : null}
           </View>
           <Text style={styles.role} numberOfLines={1}>
             {[contact.title, contact.company].filter(Boolean).join(' • ')}
@@ -41,17 +50,14 @@ export function ContactCard({ contact, onPress, onCall, onEmail, onToggleFavorit
                 {contact.group}
               </Text>
             ) : null}
-            {lowConfidence ? (
-              <View style={styles.warn}>
-                <Icon name="error" size={12} color={colors.onErrorSoft} />
-                <Text style={styles.warnText}>Needs review</Text>
-              </View>
-            ) : (
-              <View style={styles.ok}>
-                <Icon name="check_circle" size={12} color={colors.tertiary} />
-                <Text style={styles.okText}>AI extracted</Text>
-              </View>
-            )}
+            <View style={status.warn ? styles.warn : styles.ok}>
+              <Icon
+                name={status.icon}
+                size={12}
+                color={status.warn ? colors.onErrorSoft : colors.tertiary}
+              />
+              <Text style={status.warn ? styles.warnText : styles.okText}>{status.text}</Text>
+            </View>
           </View>
         </View>
         <Pressable
@@ -64,7 +70,7 @@ export function ContactCard({ contact, onPress, onCall, onEmail, onToggleFavorit
           <Icon
             name={contact.favorite ? 'star' : 'star_border'}
             size={20}
-            color={contact.favorite ? '#F59E0B' : colors.outline}
+            color={contact.favorite ? colors.favorite : colors.outline}
           />
         </Pressable>
       </View>
@@ -111,6 +117,10 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.xl,
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
+    borderLeftWidth: 3,
+    borderLeftColor: colors.tertiaryFixed,
     padding: spacing.sm,
     gap: spacing.sm,
     ...shadows.card,

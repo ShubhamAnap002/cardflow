@@ -1,7 +1,10 @@
 import { Linking, Share } from 'react-native';
 
+import { exportContactsExcel } from '@/lib/excel';
 import { notify } from '@/lib/feedback';
-import type { Contact, Profile } from '@/lib/storage';
+import { encodeAsVCard } from '@/lib/qr-card';
+import type { Contact } from '@/lib/storage';
+import { openWebUrl } from '@/lib/url-safety';
 
 async function open(url: string, fallback: string) {
   try {
@@ -18,13 +21,17 @@ export function callNumber(phone?: string) {
 
 export function sendEmail(email?: string) {
   if (!email) return notify('No email address saved for this contact.');
-  return open(`mailto:${email}`, 'No email app available.');
+  const first = email
+    .split(',')
+    .map((part) => part.trim())
+    .find(Boolean);
+  if (!first) return notify('No email address saved for this contact.');
+  return open(`mailto:${first}`, 'No email app available.');
 }
 
 export function openWebsite(website?: string) {
   if (!website) return notify('No website saved for this contact.');
-  const url = /^https?:\/\//i.test(website) ? website : `https://${website}`;
-  return open(url, 'Could not open that link.');
+  openWebUrl(website.trim(), { title: 'Open website' });
 }
 
 export function openMap(address?: string) {
@@ -32,48 +39,30 @@ export function openMap(address?: string) {
   return open(`geo:0,0?q=${encodeURIComponent(address)}`, 'No maps app available.');
 }
 
-function vcard(fields: { name: string; title: string; company: string; email: string; phone: string; website?: string }) {
-  return [
-    fields.name,
-    [fields.title, fields.company].filter(Boolean).join(' · '),
-    fields.phone,
-    fields.email,
-    fields.website,
-  ]
-    .filter(Boolean)
-    .join('\n');
-}
-
 export async function shareContact(contact: Contact) {
   try {
-    await Share.share({ title: contact.name, message: vcard(contact) });
+    await Share.share({
+      title: contact.name,
+      message: encodeAsVCard({
+        name: contact.name,
+        title: contact.title,
+        company: contact.company,
+        email: contact.email,
+        phone: contact.phone,
+        website: contact.website,
+        address: contact.address,
+        note: contact.note,
+      }),
+    });
   } catch {
     notify('Sharing was cancelled.');
   }
 }
 
-export async function shareProfile(profile: Profile) {
-  try {
-    await Share.share({ title: profile.name, message: vcard(profile) });
-  } catch {
-    notify('Sharing was cancelled.');
-  }
-}
-
-/** Plain-text export of the whole address book — handed off to the share sheet. */
+/** Beautiful Excel (.xlsx) export via the system share sheet. */
 export async function exportContacts(contacts: Contact[]) {
-  if (contacts.length === 0) return notify('There are no contacts to export yet.');
-  const csv = [
-    'Name,Title,Company,Email,Phone,Group',
-    ...contacts.map((contact) =>
-      [contact.name, contact.title, contact.company, contact.email, contact.phone, contact.group ?? '']
-        .map((value) => `"${String(value).replace(/"/g, '""')}"`)
-        .join(',')
-    ),
-  ].join('\n');
-
   try {
-    await Share.share({ title: 'CardFlow contacts', message: csv });
+    await exportContactsExcel(contacts);
   } catch {
     notify('Export was cancelled.');
   }

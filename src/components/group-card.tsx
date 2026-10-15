@@ -8,16 +8,15 @@ type Props = {
   group: Group;
   count: number;
   onPress?: () => void;
-  onLongPress?: () => void;
+  onDelete?: () => void;
 };
 
-export function GroupCard({ group, count, onPress, onLongPress }: Props) {
+export function GroupCard({ group, count, onPress, onDelete }: Props) {
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`${group.name}, ${count} contacts`}
       onPress={onPress}
-      onLongPress={onLongPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >
       <View style={[styles.tile, { backgroundColor: `${group.tint}1A` }]}>
@@ -32,16 +31,24 @@ export function GroupCard({ group, count, onPress, onLongPress }: Props) {
         </Text>
         <View style={styles.countRow}>
           <Text style={styles.count}>{count} contacts</Text>
-          {count > 0 ? (
-            <>
-              <Text style={styles.dot}>•</Text>
-              <Icon name="cloud_done" size={13} color={colors.tertiary} />
-              <Text style={styles.synced}>Synced</Text>
-            </>
-          ) : null}
+          <Text style={styles.dot}>•</Text>
+          <Icon name="smartphone" size={13} color={colors.outline} />
+          <Text style={styles.onDevice}>On this device</Text>
         </View>
       </View>
-      <Icon name="chevron_right" size={22} color={colors.outline} />
+      {onDelete ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${group.name}`}
+          hitSlop={8}
+          onPress={onDelete}
+          style={({ pressed }) => [styles.deleteBtn, pressed && styles.deletePressed]}
+        >
+          <Icon name="delete" size={20} color={colors.onErrorSoft} />
+        </Pressable>
+      ) : (
+        <Icon name="chevron_right" size={22} color={colors.outline} />
+      )}
     </Pressable>
   );
 }
@@ -65,10 +72,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   copy: { flex: 1, minWidth: 0, gap: 2 },
-  name: { ...type.labelLg, color: colors.onSurface, fontWeight: '700' },
+  name: { ...type.labelLg, color: colors.onSurface },
   subtitle: { ...type.bodySm, color: colors.onSurfaceVariant },
   countRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xxs, marginTop: 2 },
   count: { ...type.label, color: colors.primary },
   dot: { ...type.label, color: colors.outlineVariant },
-  synced: { ...type.label, color: colors.tertiary },
+  onDevice: { ...type.label, color: colors.outline },
+  deleteBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: radii.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.errorSoft,
+  },
+  deletePressed: { opacity: 0.85 },
 });

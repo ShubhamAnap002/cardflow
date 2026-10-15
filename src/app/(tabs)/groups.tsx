@@ -27,11 +27,15 @@ export default function GroupsScreen() {
     if (groups.some((group) => group.name.toLowerCase() === trimmed.toLowerCase())) {
       return notify('A group with that name already exists.');
     }
-    await addGroup(trimmed, 'Created on this device');
-    setGroups(await listGroups());
-    setName('');
-    setComposing(false);
-    notify(`"${trimmed}" created.`);
+    try {
+      await addGroup(trimmed, 'Created on this device');
+      setGroups(await listGroups());
+      setName('');
+      setComposing(false);
+      notify(`"${trimmed}" created.`);
+    } catch {
+      notify('Could not create that group.');
+    }
   }
 
   function onDelete(id: string, groupName: string) {
@@ -40,8 +44,12 @@ export default function GroupsScreen() {
       `"${groupName}" will be removed. The contacts inside it are kept.`,
       'Delete',
       async () => {
-        setGroups(await deleteGroup(id));
-        notify('Group deleted.');
+        try {
+          setGroups(await deleteGroup(id));
+          notify('Group deleted.');
+        } catch {
+          notify('Could not delete that group.');
+        }
       }
     );
   }
@@ -52,6 +60,7 @@ export default function GroupsScreen() {
         title="Groups"
         profile={{ initials: initialsOf(profile.name), uri: profile.avatarUri }}
         onProfile={() => router.push('/profile')}
+        onSettings={() => router.navigate('/settings')}
       />
 
       <ScreenBody tabBar>
@@ -75,9 +84,10 @@ export default function GroupsScreen() {
           <View style={styles.composer}>
             <Text style={styles.composerLabel}>New group name</Text>
             <TextInput
+              accessibilityLabel="New group name"
               value={name}
               onChangeText={setName}
-              placeholder="e.g. SaaS Summit 2026"
+              placeholder="Group name"
               placeholderTextColor={colors.outline}
               style={styles.input}
               autoFocus
@@ -124,13 +134,10 @@ export default function GroupsScreen() {
                 group={group}
                 count={countInGroup(contacts, group.name)}
                 onPress={() => router.navigate(`/contacts?group=${encodeURIComponent(group.name)}`)}
-                onLongPress={() => onDelete(group.id, group.name)}
+                onDelete={() => onDelete(group.id, group.name)}
               />
             ))
           )}
-          {groups.length > 0 ? (
-            <Text style={styles.hint}>Long-press a group to delete it.</Text>
-          ) : null}
         </Section>
       </ScreenBody>
     </Screen>
@@ -173,5 +180,4 @@ const styles = StyleSheet.create({
     ...type.body,
     color: colors.onSurface,
   },
-  hint: { ...type.label, color: colors.outline, textAlign: 'center', marginTop: spacing.xxs },
 });
