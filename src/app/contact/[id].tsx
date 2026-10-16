@@ -63,6 +63,7 @@ export default function ContactDetailScreen() {
   const id = paramString(params.id);
   const [contact, setContact] = useState<Contact | undefined>();
   const [loading, setLoading] = useState(true);
+  const [syncingCrm, setSyncingCrm] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -133,8 +134,6 @@ export default function ContactDetailScreen() {
       </Screen>
     );
   }
-
-  const [syncingCrm, setSyncingCrm] = useState(false);
 
   async function onManualCrmSync() {
     if (!contact) return;

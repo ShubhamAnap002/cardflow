@@ -52,6 +52,19 @@ describe('contact-draft validation', () => {
   it('splitEmails drops empties', () => {
     expect(splitEmails(' a@x.com , , b@y.org ')).toEqual(['a@x.com', 'b@y.org']);
   });
+
+  it('preserves speech transcript and voice remark in toContact', () => {
+    const contact = toContact({
+      ...EMPTY_DRAFT,
+      name: 'Michael Scott',
+      remark: 'Spoke with CEO about annual contract renewal',
+      voiceTranscript: 'Spoke with CEO about annual contract renewal',
+      audioUri: 'blob:http://localhost/test-audio',
+    });
+    expect(contact.remark).toBe('Spoke with CEO about annual contract renewal');
+    expect(contact.voiceTranscript).toBe('Spoke with CEO about annual contract renewal');
+    expect(contact.audioUri).toBe('blob:http://localhost/test-audio');
+  });
 });
 
 describe('merge-card', () => {

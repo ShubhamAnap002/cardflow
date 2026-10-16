@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { ScanSourceSheet } from '@/components/scan-source-sheet';
 import { getEntitlementState } from '@/lib/entitlements';
 import { notify } from '@/lib/feedback';
-import { persistCardImage } from '@/lib/media';
+import { stageCardImageForReview } from '@/lib/media';
 import { dismissToHome } from '@/lib/navigation';
 import { offerQuotaOptions } from '@/lib/scan-paywall';
 
@@ -41,8 +41,8 @@ export default function ScanScreenWeb() {
       reader.onload = async () => {
         try {
           const rawUri = String(reader.result || '');
-          const uri = await persistCardImage(rawUri);
-          router.replace({ pathname: '/review', params: { uri } });
+          await stageCardImageForReview(rawUri);
+          router.replace({ pathname: '/review', params: { staged: '1' } });
         } catch {
           notify('Could not process that image. Please try another.');
           setBusy(false);
