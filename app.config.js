@@ -17,12 +17,14 @@ const config = {
   backgroundColor: '#F8FAFC',
   android: {
     package: 'com.shubhamanap.cardflow',
-    permissions: ['CAMERA', 'READ_MEDIA_IMAGES', 'INTERNET', 'ACCESS_NETWORK_STATE'],
-    blockedPermissions: [
-      'READ_EXTERNAL_STORAGE',
-      'WRITE_EXTERNAL_STORAGE',
+    permissions: [
+      'CAMERA',
+      'READ_MEDIA_IMAGES',
+      'INTERNET',
+      'ACCESS_NETWORK_STATE',
       'RECORD_AUDIO',
     ],
+    blockedPermissions: ['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE'],
     adaptiveIcon: {
       backgroundColor: '#2563EB',
       foregroundImage: './assets/images/android-icon-foreground.png',
