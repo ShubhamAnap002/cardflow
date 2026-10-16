@@ -173,6 +173,9 @@ export function buildEnerTechLeadPayload(contact: Contact): EnerTechLeadPayload 
   if (contact.email2) {
     noteLines.push(`Alt Email: ${contact.email2}`);
   }
+  if (contact.website) {
+    noteLines.push(`Website: ${contact.website}`);
+  }
   if (contact.cardUri) {
     noteLines.push(`Card Front: ${contact.cardUri}`);
   }
