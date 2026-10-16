@@ -86,6 +86,8 @@ const GLYPHS = {
   photo_camera: '\ue412',
   photo_library: '\ue413',
   place: '\ue55f',
+  play_arrow: '\ue037',
+  pause: '\ue034',
   qr_code_2: '\ue00a',
   record_voice_over: '\ue91f',
   refresh: '\ue5d5',

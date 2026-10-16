@@ -34,28 +34,33 @@ describe('Admin Product & Category Flow Integration Test', () => {
     memory.clear();
   });
 
-  it('starts with an empty product and category catalog (no dummy data)', async () => {
+  it('starts with default energy and power categories and products', async () => {
     const products = await listProducts();
     const categories = await listCategories();
-    expect(products).toEqual([]);
-    expect(categories).toEqual([]);
+    expect(products.length).toBeGreaterThanOrEqual(6);
+    expect(categories).toContain('Solar Inverters & PCUs');
+    expect(categories).toContain('Uninterruptible Power Supplies (UPS)');
   });
 
   it('allows adding categories in Admin section', async () => {
+    const initialCats = await listCategories();
     await addCategory('Solar Panels');
     await addCategory('Inverters & UPS');
     await addCategory('Industrial Batteries');
 
     const categories = await listCategories();
-    expect(categories).toEqual(['Solar Panels', 'Inverters & UPS', 'Industrial Batteries']);
+    expect(categories).toContain('Solar Panels');
+    expect(categories).toContain('Inverters & UPS');
+    expect(categories).toContain('Industrial Batteries');
 
     // Case-insensitive dedup check
     await addCategory('solar panels');
     const deduped = await listCategories();
-    expect(deduped).toHaveLength(3);
+    expect(deduped).toHaveLength(initialCats.length + 3);
   });
 
   it('allows adding products linked to categories in Admin', async () => {
+    const initialProds = await listProducts();
     await addCategory('Solar Panels');
     const p1 = await addProduct('Mono PERC 550W', 'Solar Panels', {
       description: 'High efficiency bifacial solar panel',
@@ -65,9 +70,9 @@ describe('Admin Product & Category Flow Integration Test', () => {
     });
 
     const products = await listProducts();
-    expect(products).toHaveLength(2);
-    expect(products[0].name).toBe('EnerTech 10kVA Online UPS');
-    expect(products[1].name).toBe('Mono PERC 550W');
+    expect(products).toHaveLength(initialProds.length + 2);
+    expect(products.map((p) => p.name)).toContain('EnerTech 10kVA Online UPS');
+    expect(products.map((p) => p.name)).toContain('Mono PERC 550W');
 
     // Automatically added category if not present
     const categories = await listCategories();
@@ -76,17 +81,19 @@ describe('Admin Product & Category Flow Integration Test', () => {
   });
 
   it('allows editing and deleting products and categories', async () => {
+    const initialProds = await listProducts();
     const p = await addProduct('Battery Bank 48V', 'Storage');
     expect(p.category).toBe('Storage');
 
     await updateProduct(p.id, { name: 'Lithium Battery 48V 100Ah', description: 'LiFePO4 battery' });
     let products = await listProducts();
-    expect(products[0].name).toBe('Lithium Battery 48V 100Ah');
-    expect(products[0].description).toBe('LiFePO4 battery');
+    const found = products.find((prod) => prod.id === p.id);
+    expect(found?.name).toBe('Lithium Battery 48V 100Ah');
+    expect(found?.description).toBe('LiFePO4 battery');
 
     await deleteProduct(p.id);
     products = await listProducts();
-    expect(products).toHaveLength(0);
+    expect(products).toHaveLength(initialProds.length);
 
     await deleteCategory('Storage');
     const categories = await listCategories();

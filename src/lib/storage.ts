@@ -341,9 +341,66 @@ export type Product = {
   createdAt: number;
 };
 
+export const DEFAULT_CATEGORIES: string[] = [
+  'Solar Inverters & PCUs',
+  'Uninterruptible Power Supplies (UPS)',
+  'Energy Storage Systems (BESS)',
+  'Industrial Power Converters & Inverters',
+  'Servo Voltage Stabilizers',
+  'Industrial Battery Chargers',
+];
+
+export const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: 'prod_default_solar',
+    name: 'Solar Inverters & PCUs',
+    category: 'Solar Inverters & PCUs',
+    description: 'Hybrid & On-Grid Solar Inverters and Power Conditioning Units',
+    createdAt: 1700000000001,
+  },
+  {
+    id: 'prod_default_ups',
+    name: 'Uninterruptible Power Supplies (UPS)',
+    category: 'Uninterruptible Power Supplies (UPS)',
+    description: 'Online Industrial UPS & Power Backup Solutions',
+    createdAt: 1700000000002,
+  },
+  {
+    id: 'prod_default_bess',
+    name: 'Energy Storage Systems (BESS)',
+    category: 'Energy Storage Systems (BESS)',
+    description: 'Lithium Battery Energy Storage Systems (BESS)',
+    createdAt: 1700000000003,
+  },
+  {
+    id: 'prod_default_converters',
+    name: 'Industrial Power Converters & Inverters',
+    category: 'Industrial Power Converters & Inverters',
+    description: 'Heavy Duty Static Frequency Converters & Inverters',
+    createdAt: 1700000000004,
+  },
+  {
+    id: 'prod_default_stabilizers',
+    name: 'Servo Voltage Stabilizers',
+    category: 'Servo Voltage Stabilizers',
+    description: 'Air/Oil Cooled Precision Servo Voltage Stabilizers',
+    createdAt: 1700000000005,
+  },
+  {
+    id: 'prod_default_chargers',
+    name: 'Industrial Battery Chargers',
+    category: 'Industrial Battery Chargers',
+    description: 'Float cum Boost Battery Chargers (FCBC) & SMPS Chargers',
+    createdAt: 1700000000006,
+  },
+];
+
 export async function listProducts(): Promise<Product[]> {
   const stored = await readJson<Product[] | null>(PRODUCTS_KEY, null);
-  if (!Array.isArray(stored)) return [];
+  if (!Array.isArray(stored)) {
+    await writeJson(PRODUCTS_KEY, DEFAULT_PRODUCTS);
+    return DEFAULT_PRODUCTS.slice().sort((a, b) => b.createdAt - a.createdAt);
+  }
   return stored.slice().sort((a, b) => b.createdAt - a.createdAt);
 }
 
@@ -392,7 +449,10 @@ export async function deleteProduct(id: string): Promise<Product[]> {
 
 export async function listCategories(): Promise<string[]> {
   const stored = await readJson<string[] | null>(CATEGORIES_KEY, null);
-  if (!Array.isArray(stored)) return [];
+  if (!Array.isArray(stored)) {
+    await writeJson(CATEGORIES_KEY, DEFAULT_CATEGORIES);
+    return DEFAULT_CATEGORIES;
+  }
   return stored;
 }
 

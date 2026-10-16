@@ -29,19 +29,26 @@ describe('Product & Category Storage', () => {
     memory.clear();
   });
 
-  it('starts with empty products list by default', async () => {
+  it('starts with default energy & power categories and products', async () => {
     const products = await listProducts();
-    expect(products).toEqual([]);
+    expect(products.length).toBeGreaterThanOrEqual(6);
+    expect(products.map((p) => p.name)).toContain('Solar Inverters & PCUs');
+    expect(products.map((p) => p.name)).toContain('Uninterruptible Power Supplies (UPS)');
+
+    const categories = await listCategories();
+    expect(categories).toContain('Solar Inverters & PCUs');
+    expect(categories).toContain('Energy Storage Systems (BESS)');
   });
 
   it('adds and lists products dynamically without dummy data', async () => {
+    const initial = await listProducts();
     const p1 = await addProduct('Custom Inverter 500W', 'Inverters');
     expect(p1.name).toBe('Custom Inverter 500W');
     expect(p1.category).toBe('Inverters');
     expect(p1.id).toBeTruthy();
 
     const products = await listProducts();
-    expect(products).toHaveLength(1);
+    expect(products).toHaveLength(initial.length + 1);
     expect(products[0].name).toBe('Custom Inverter 500W');
 
     // Automatically tracks category
@@ -50,6 +57,7 @@ describe('Product & Category Storage', () => {
   });
 
   it('updates and deletes products', async () => {
+    const initialProds = await listProducts();
     const p = await addProduct('Solar Battery 100Ah', 'Batteries');
     await updateProduct(p.id, { name: 'Solar Battery 150Ah' });
 
@@ -58,19 +66,22 @@ describe('Product & Category Storage', () => {
 
     await deleteProduct(p.id);
     products = await listProducts();
-    expect(products).toHaveLength(0);
+    expect(products).toHaveLength(initialProds.length);
   });
 
   it('manages categories cleanly without duplicates', async () => {
-    await addCategory('Solar');
-    await addCategory('Solar'); // Duplicate
-    await addCategory('Hardware');
+    const initialCats = await listCategories();
+    await addCategory('Solar Testing');
+    await addCategory('Solar Testing'); // Duplicate
+    await addCategory('Hardware Testing');
 
     let cats = await listCategories();
-    expect(cats).toEqual(['Solar', 'Hardware']);
+    expect(cats).toContain('Solar Testing');
+    expect(cats).toContain('Hardware Testing');
+    expect(cats).toHaveLength(initialCats.length + 2);
 
-    await deleteCategory('Solar');
+    await deleteCategory('Solar Testing');
     cats = await listCategories();
-    expect(cats).toEqual(['Hardware']);
+    expect(cats).not.toContain('Solar Testing');
   });
 });

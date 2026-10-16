@@ -1,3 +1,4 @@
+import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -45,6 +46,7 @@ export function VoiceRemark({
   const [isListening, setIsListening] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [interimText, setInterimText] = useState('');
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Stable callback refs prevent effect teardown and recognition aborts on state updates
   const onChangeRemarkRef = useRef(onChangeRemark);
@@ -55,8 +57,8 @@ export function VoiceRemark({
   onChangeAudioUriRef.current = onChangeAudioUri;
 
   const recognitionRef = useRef<IWindowSpeechRecognition | null>(null);
-  const mediaRecorderRef = useRef<any>(null);
-  const audioChunksRef = useRef<any[]>([]);
+  const nativeRecordingRef = useRef<Audio.Recording | null>(null);
+  const soundPlaybackRef = useRef<Audio.Sound | null>(null);
   const isListeningRef = useRef(false);
   const baseTextRef = useRef('');
 
@@ -78,12 +80,11 @@ export function VoiceRemark({
           // Ignore
         }
       }
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-        try {
-          mediaRecorderRef.current.stop();
-        } catch {
-          // Ignore
-        }
+      if (nativeRecordingRef.current) {
+        nativeRecordingRef.current.stopAndUnloadAsync().catch(() => {});
+      }
+      if (soundPlaybackRef.current) {
+        soundPlaybackRef.current.unloadAsync().catch(() => {});
       }
     };
   }, []);
@@ -179,52 +180,40 @@ export function VoiceRemark({
     baseTextRef.current = remark || voiceTranscript || '';
 
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      // 1. Start live speech-to-text recognition
+      // 1. Start live speech-to-text recognition on web (100% Free)
       const rec = createAndStartRecognition();
       recognitionRef.current = rec;
-
-      // 2. Optional concurrent MediaRecorder for audio playback memo
-      if (navigator.mediaDevices?.getUserMedia) {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const mediaRecorder = new (window as any).MediaRecorder(stream);
-          audioChunksRef.current = [];
-
-          mediaRecorder.ondataavailable = (e: any) => {
-            if (e.data && e.data.size > 0) audioChunksRef.current.push(e.data);
-          };
-
-          mediaRecorder.onstop = () => {
-            if (audioChunksRef.current.length > 0) {
-              const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-              const audioUrl = URL.createObjectURL(audioBlob);
-              if (onChangeAudioUriRef.current) onChangeAudioUriRef.current(audioUrl);
-            }
-            stream.getTracks().forEach((track) => track.stop());
-          };
-
-          mediaRecorder.start(250);
-          mediaRecorderRef.current = mediaRecorder;
-        } catch {
-          // If media recording is blocked or unsupported, speech recognition continues unimpeded
-        }
-      }
     } else {
-      // Mobile native simulation fallback
-      setStatusMessage('Listening to voice note...');
-      setTimeout(() => {
-        if (!isListeningRef.current) return;
-        const sampleText = 'Discussed bulk requirements. Customer requested catalog and follow-up.';
-        const next = baseTextRef.current ? `${baseTextRef.current}\n${sampleText}` : sampleText;
-        baseTextRef.current = next;
-        onChangeTranscriptRef.current(next);
-        onChangeRemarkRef.current(next);
-        stopListening();
-      }, 3000);
+      // 2. Real Native Mobile (Android APK) - Recording via expo-av
+      try {
+        setStatusMessage('Requesting microphone permission...');
+        const perm = await Audio.requestPermissionsAsync();
+        if (perm.status !== 'granted') {
+          setStatusMessage('Microphone permission denied. Please allow microphone in settings.');
+          setIsListening(false);
+          isListeningRef.current = false;
+          return;
+        }
+
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+
+        const recording = new Audio.Recording();
+        await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
+        await recording.startAsync();
+        nativeRecordingRef.current = recording;
+        setStatusMessage('Recording voice note... speak now');
+      } catch (err: any) {
+        setStatusMessage(`Mic error: ${err?.message || 'Could not access microphone'}`);
+        setIsListening(false);
+        isListeningRef.current = false;
+      }
     }
   };
 
-  const stopListening = () => {
+  const stopListening = async () => {
     isListeningRef.current = false;
     setIsListening(false);
     setInterimText('');
@@ -238,20 +227,118 @@ export function VoiceRemark({
         }
         recognitionRef.current = null;
       }
-
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+    } else {
+      // Stop native mobile recording and process audio
+      if (nativeRecordingRef.current) {
+        const recording = nativeRecordingRef.current;
+        nativeRecordingRef.current = null;
         try {
-          mediaRecorderRef.current.stop();
-        } catch {
-          // Ignore
+          await recording.stopAndUnloadAsync();
+          const uri = recording.getURI();
+          if (uri) {
+            if (onChangeAudioUriRef.current) {
+              onChangeAudioUriRef.current(uri);
+            }
+
+            // If OpenAI API key is configured, transcribe with Whisper AI
+            const apiKey = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
+            if (apiKey) {
+              setStatusMessage('Transcribing voice note with AI...');
+              try {
+                const formData = new FormData();
+                formData.append('file', {
+                  uri,
+                  type: 'audio/m4a',
+                  name: 'voice_note.m4a',
+                } as any);
+                formData.append('model', 'whisper-1');
+
+                const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                  method: 'POST',
+                  headers: {
+                    Authorization: `Bearer ${apiKey}`,
+                  },
+                  body: formData,
+                });
+
+                if (res.ok) {
+                  const data = await res.json();
+                  if (data.text && data.text.trim()) {
+                    const cleanText = data.text.trim();
+                    const next = baseTextRef.current
+                      ? `${baseTextRef.current}\n${cleanText}`
+                      : cleanText;
+                    baseTextRef.current = next;
+                    onChangeTranscriptRef.current(next);
+                    onChangeRemarkRef.current(next);
+                    setStatusMessage('Voice transcribed successfully!');
+                  } else {
+                    setStatusMessage('Voice memo recorded & attached.');
+                  }
+                } else {
+                  setStatusMessage('Voice memo recorded & attached.');
+                }
+              } catch {
+                setStatusMessage('Voice memo recorded & attached.');
+              }
+            } else {
+              setStatusMessage('Voice memo recorded & attached.');
+            }
+          }
+        } catch (err: any) {
+          setStatusMessage(`Voice memo error: ${err?.message || ''}`);
         }
-        mediaRecorderRef.current = null;
       }
+    }
+  };
+
+  const togglePlayAudio = async () => {
+    if (!audioUri) return;
+    try {
+      if (isPlayingAudio && soundPlaybackRef.current) {
+        await soundPlaybackRef.current.pauseAsync();
+        setIsPlayingAudio(false);
+        return;
+      }
+
+      if (soundPlaybackRef.current) {
+        await soundPlaybackRef.current.unloadAsync();
+        soundPlaybackRef.current = null;
+      }
+
+      const { sound } = await Audio.Sound.createAsync(
+        { uri: audioUri },
+        { shouldPlay: true }
+      );
+      soundPlaybackRef.current = sound;
+      setIsPlayingAudio(true);
+
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded && status.didJustFinish) {
+          setIsPlayingAudio(false);
+        }
+      });
+    } catch {
+      setIsPlayingAudio(false);
+    }
+  };
+
+  const stopAudioPlayback = async () => {
+    if (soundPlaybackRef.current) {
+      try {
+        await soundPlaybackRef.current.stopAsync();
+        await soundPlaybackRef.current.unloadAsync();
+      } catch {
+        // Ignore
+      }
+      soundPlaybackRef.current = null;
+      setIsPlayingAudio(false);
     }
   };
 
   const handleClear = () => {
     stopListening();
+    stopAudioPlayback();
     baseTextRef.current = '';
     setInterimText('');
     onChangeTranscriptRef.current('');
@@ -366,11 +453,29 @@ export function VoiceRemark({
       {/* 4. Audio Playback attachment if recorded */}
       {audioUri ? (
         <View style={styles.audioRow}>
-          <Icon name="volume_up" size={18} color={colors.primary} />
-          <Text style={styles.audioText}>Voice memo recorded & attached</Text>
+          <Pressable
+            style={styles.playAudioBtn}
+            onPress={togglePlayAudio}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={isPlayingAudio ? 'Pause voice memo' : 'Play voice memo'}
+          >
+            <Icon
+              name={isPlayingAudio ? 'pause' : 'play_arrow'}
+              size={18}
+              color={colors.primary}
+            />
+          </Pressable>
+          <Text style={styles.audioText}>
+            {isPlayingAudio ? 'Playing voice memo...' : 'Voice memo recorded & attached'}
+          </Text>
           <Pressable
             style={styles.clearAudioBtn}
-            onPress={() => onChangeAudioUri && onChangeAudioUri(undefined)}
+            onPress={() => {
+              stopAudioPlayback();
+              if (onChangeAudioUriRef.current) onChangeAudioUriRef.current(undefined);
+            }}
+            hitSlop={8}
           >
             <Icon name="close" size={16} color={colors.onSurfaceVariant} />
           </Pressable>
@@ -610,6 +715,16 @@ const styles = StyleSheet.create({
     ...type.bodySm,
     fontWeight: '600',
     color: colors.primary,
+  },
+  playAudioBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
   clearAudioBtn: {
     padding: 2,
