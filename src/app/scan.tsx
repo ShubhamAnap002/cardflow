@@ -1,11 +1,12 @@
 import * as ImagePicker from 'expo-image-picker';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { Platform } from 'react-native';
 
 import { ScanSourceSheet } from '@/components/scan-source-sheet';
 import { getEntitlementState } from '@/lib/entitlements';
 import { notify } from '@/lib/feedback';
-import { persistCardImage } from '@/lib/media';
+import { persistCardImage, stageCardImageForReview } from '@/lib/media';
 import { dismissToHome } from '@/lib/navigation';
 import { offerQuotaOptions } from '@/lib/scan-paywall';
 
@@ -34,24 +35,29 @@ export default function ScanScreen() {
         if (!unlocked) return;
       }
 
-      const permission =
-        source === 'camera'
-          ? await ImagePicker.requestCameraPermissionsAsync()
-          : await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-      if (!permission.granted) {
-        notify(
+      if (Platform.OS !== 'web') {
+        const permission =
           source === 'camera'
-            ? 'Allow camera access to scan business cards.'
-            : 'Allow photo access to import a card.'
-        );
-        return;
+            ? await ImagePicker.requestCameraPermissionsAsync()
+            : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        if (!permission.granted) {
+          notify(
+            source === 'camera'
+              ? 'Allow camera access to scan business cards.'
+              : 'Allow photo access to import a card.'
+          );
+          return;
+        }
       }
 
-      const result =
-        source === 'camera'
-          ? await ImagePicker.launchCameraAsync(PICKER)
-          : await ImagePicker.launchImageLibraryAsync(PICKER);
+      let result;
+      if (source === 'camera' && Platform.OS !== 'web') {
+        result = await ImagePicker.launchCameraAsync(PICKER);
+      } else {
+        // On web, launchImageLibraryAsync opens system file browser reliably
+        result = await ImagePicker.launchImageLibraryAsync(PICKER);
+      }
 
       const picked = result.canceled ? undefined : result.assets?.[0]?.uri;
       if (!picked) return;
@@ -63,7 +69,13 @@ export default function ScanScreen() {
         // Fall back to the picker URI if copy fails.
       }
 
-      router.replace({ pathname: '/review', params: { uri } });
+      await stageCardImageForReview(uri);
+
+      if (Platform.OS === 'web') {
+        router.replace({ pathname: '/review', params: { staged: '1' } });
+      } else {
+        router.replace({ pathname: '/review', params: { uri } });
+      }
     } catch {
       notify('Could not open that source. Please try again.');
     } finally {

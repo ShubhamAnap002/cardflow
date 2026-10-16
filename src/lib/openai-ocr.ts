@@ -131,46 +131,193 @@ export async function scanCardWithOpenAi(uri: string): Promise<OcrResult> {
       throw new Error('OpenAI returned an empty response.');
     }
 
-    const parsed: OpenAiCardData = JSON.parse(content);
-
-    // Normalize phone numbers strictly without '+' and single mobile mapping
-    const rawPhone = parsed.phone || '';
-    const phoneList = splitPhoneNumbers(rawPhone);
-    const primaryPhone = phoneList[0] || normalizePhoneNumber(rawPhone);
-
-    const rawPhone2 = parsed.phone2 || (phoneList.length > 1 ? phoneList[1] : '');
-    const secondaryPhone = normalizePhoneNumber(rawPhone2);
-
-    const fields: OcrFields = {
-      name: parsed.name?.trim() || '',
-      title: parsed.title?.trim() || '',
-      company: parsed.company?.trim() || '',
-      phone: primaryPhone,
-      email: parsed.email?.trim() || '',
-      website: parsed.website?.trim() || '',
-      address: parsed.address?.trim() || '',
-      note: '',
-    };
-
-    const rawLines = Array.isArray(parsed.rawLines)
-      ? parsed.rawLines.map((l) => String(l).trim()).filter(Boolean)
-      : [];
-
-    return {
-      fields,
-      confidence: 96,
-      engine: 'openai',
-      rawLines,
-      extra: {
-        phone2: secondaryPhone || undefined,
-        email2: parsed.email2?.trim() || undefined,
-        leadType: parsed.leadType === 'International' ? 'International' : 'Domestic',
-        scope: parsed.scope === 'Small' ? 'Small' : 'Bulk',
-        products: Array.isArray(parsed.products) ? parsed.products.map(String).filter(Boolean) : [],
-      },
-    };
+    const parsed = parseOpenAiCardJson(content);
+    return mapOpenAiCardData(parsed);
   } catch (err: unknown) {
     clearTimeout(timer);
     throw err;
   }
+}
+
+/**
+ * Safely parse JSON from model output, handling markdown code fences, whitespace, and raw objects.
+ */
+export function parseOpenAiCardJson(content: string): Record<string, any> {
+  const trimmed = content.trim().replace(/^```(?:json)?\s*/i, '').replace(/```$/i, '').trim();
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    const match = trimmed.match(/\{[\s\S]*\}/);
+    if (match) {
+      return JSON.parse(match[0]);
+    }
+    throw new Error('AI returned an invalid JSON response format.');
+  }
+}
+
+/**
+ * Maps raw model response with comprehensive key synonyms, phone normalization,
+ * product extraction, and rich rawLines for the Tap-to-Fill assistant.
+ */
+export function mapOpenAiCardData(raw: Record<string, any>): OcrResult {
+  const rawName =
+    raw.name ||
+    raw.fullName ||
+    raw.full_name ||
+    raw.contactName ||
+    raw.contact_name ||
+    raw.personName ||
+    raw.contact_person ||
+    '';
+
+  const rawTitle =
+    raw.title ||
+    raw.jobTitle ||
+    raw.job_title ||
+    raw.designation ||
+    raw.position ||
+    raw.role ||
+    '';
+
+  const rawCompany =
+    raw.company ||
+    raw.companyName ||
+    raw.company_name ||
+    raw.organization ||
+    raw.organizationName ||
+    raw.organization_name ||
+    raw.businessName ||
+    raw.firm ||
+    '';
+
+  const rawPhone =
+    raw.phone ||
+    raw.mobile ||
+    raw.mobilePhone ||
+    raw.mobileNumber ||
+    raw.mobile_number ||
+    raw.phoneNumber ||
+    raw.phone_number ||
+    raw.contactNumber ||
+    raw.tel ||
+    '';
+
+  const rawPhone2Candidate =
+    raw.phone2 ||
+    raw.secondaryPhone ||
+    raw.secondary_phone ||
+    raw.mobile2 ||
+    raw.altPhone ||
+    raw.alt_phone ||
+    raw.telephone ||
+    raw.officePhone ||
+    raw.landline ||
+    '';
+
+  const phoneList = splitPhoneNumbers(String(rawPhone));
+  const primaryPhone = phoneList[0] || normalizePhoneNumber(String(rawPhone));
+  const rawPhone2 = rawPhone2Candidate || (phoneList.length > 1 ? phoneList[1] : '');
+  const secondaryPhone = normalizePhoneNumber(String(rawPhone2));
+
+  const rawEmail =
+    raw.email ||
+    raw.emailAddress ||
+    raw.email_address ||
+    raw.mail ||
+    raw.primaryEmail ||
+    '';
+
+  const rawEmail2 =
+    raw.email2 ||
+    raw.secondaryEmail ||
+    raw.secondary_email ||
+    raw.altEmail ||
+    '';
+
+  const rawWebsite =
+    raw.website ||
+    raw.web ||
+    raw.url ||
+    raw.site ||
+    raw.websiteUrl ||
+    raw.website_url ||
+    '';
+
+  const rawAddress =
+    raw.address ||
+    raw.fullAddress ||
+    raw.full_address ||
+    raw.location ||
+    raw.officeAddress ||
+    raw.streetAddress ||
+    '';
+
+  const rawLeadType = String(raw.leadType || raw.type || '').toLowerCase();
+  const leadType: 'Domestic' | 'International' =
+    rawLeadType.includes('international') || rawLeadType.includes('export')
+      ? 'International'
+      : 'Domestic';
+
+  const rawScope = String(raw.scope || raw.dealScope || '').toLowerCase();
+  const scope: 'Bulk' | 'Small' =
+    rawScope.includes('small') || rawScope.includes('retail')
+      ? 'Small'
+      : 'Bulk';
+
+  let productsList: string[] = [];
+  const rawProducts = raw.products || raw.services || raw.productList || raw.equipment;
+  if (Array.isArray(rawProducts)) {
+    productsList = rawProducts
+      .map((p) => (typeof p === 'string' ? p.trim() : String(p?.name || p || '')))
+      .filter(Boolean);
+  } else if (typeof rawProducts === 'string' && rawProducts.trim()) {
+    productsList = rawProducts.split(/[,;\n]+/).map((p) => p.trim()).filter(Boolean);
+  }
+
+  const rawLinesSet = new Set<string>();
+  if (Array.isArray(raw.rawLines)) {
+    raw.rawLines.forEach((l: any) => {
+      const s = String(l || '').trim();
+      if (s) rawLinesSet.add(s);
+    });
+  }
+
+  // Ensure every extracted contact field is available as a selectable tap-to-fill line
+  [rawCompany, rawName, rawTitle, rawPhone, rawPhone2Candidate, rawEmail, rawEmail2, rawWebsite].forEach((val) => {
+    const s = String(val || '').trim();
+    if (s.length > 1) rawLinesSet.add(s);
+  });
+  if (rawAddress) {
+    String(rawAddress)
+      .split(/\r?\n/)
+      .forEach((a) => {
+        const s = a.trim();
+        if (s.length > 1) rawLinesSet.add(s);
+      });
+  }
+
+  const fields: OcrFields = {
+    name: String(rawName).trim(),
+    title: String(rawTitle).trim(),
+    company: String(rawCompany).trim(),
+    phone: primaryPhone,
+    email: String(rawEmail).trim(),
+    website: String(rawWebsite).trim(),
+    address: String(rawAddress).trim(),
+    note: String(raw.note || '').trim(),
+  };
+
+  return {
+    fields,
+    confidence: 96,
+    engine: 'openai',
+    rawLines: Array.from(rawLinesSet),
+    extra: {
+      phone2: secondaryPhone || undefined,
+      email2: String(rawEmail2).trim() || undefined,
+      leadType,
+      scope,
+      products: productsList,
+    },
+  };
 }

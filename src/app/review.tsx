@@ -29,7 +29,7 @@ import { colors, shadows, spacing, type } from '@/constants/theme';
 import { maybeShowInterstitial } from '@/lib/ads';
 import { isQuotaExceeded } from '@/lib/entitlements';
 import { notify } from '@/lib/feedback';
-import { persistCardImage } from '@/lib/media';
+import { clearStagedCardImage, persistCardImage, readStagedCardImage } from '@/lib/media';
 import { averageConfidence, mergeCardFields } from '@/lib/merge-card';
 import { dismissToHome } from '@/lib/navigation';
 import { draftFromOcr, scanCardImage } from '@/lib/ocr';
@@ -53,9 +53,10 @@ const PICKER: ImagePicker.ImagePickerOptions = {
 };
 
 export default function ReviewScreen() {
-  const { uri: uriParam, source: sourceParam } = useLocalSearchParams<{
+  const { uri: uriParam, source: sourceParam, staged: stagedParam } = useLocalSearchParams<{
     uri?: string | string[];
     source?: string | string[];
+    staged?: string | string[];
   }>();
   const uri = paramString(uriParam);
   const fromQr = paramString(sourceParam) === 'qr';
@@ -63,6 +64,7 @@ export default function ReviewScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
 
+  const [frontUri, setFrontUri] = useState<string | undefined>(uri);
   const [step, setStep] = useState(0);
   const [ready, setReady] = useState(false);
   const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT);
@@ -74,11 +76,13 @@ export default function ReviewScreen() {
   const ranForUri = useRef<string | undefined>(undefined);
   const qrApplied = useRef(false);
 
-  // Clear staged QR PII on any leave (header back, Android back, replace after save).
+  // Clear staged QR and card image on any leave (header back, Android back, replace after save).
   useEffect(() => {
-    if (!fromQr) return;
     const unsub = navigation.addListener('beforeRemove', () => {
-      void import('@/lib/qr-card').then(({ clearQrDraft }) => clearQrDraft());
+      if (fromQr) {
+        void import('@/lib/qr-card').then(({ clearQrDraft }) => clearQrDraft());
+      }
+      void clearStagedCardImage();
     });
     return unsub;
   }, [fromQr, navigation]);
@@ -138,23 +142,39 @@ export default function ReviewScreen() {
       };
     }
 
-    if (!uri) {
-      setReady(true);
-      notify('No photo found. Enter the contact manually.');
-      return;
-    }
-
-    if (ranForUri.current === uri) return;
-    ranForUri.current = uri;
-
     let cancelled = false;
 
     (async () => {
+      let activeUri = uri;
+      if (!activeUri) {
+        activeUri = (await readStagedCardImage()) || undefined;
+      }
+
+      if (
+        activeUri &&
+        activeUri.startsWith('data:') &&
+        activeUri.includes(' ') &&
+        !activeUri.includes('+')
+      ) {
+        activeUri = activeUri.replace(/ /g, '+');
+      }
+
+      if (!activeUri) {
+        setReady(true);
+        notify('No photo found. Enter the contact manually.');
+        return;
+      }
+
+      setFrontUri(activeUri);
+
+      if (ranForUri.current === activeUri) return;
+      ranForUri.current = activeUri;
+
       setStep(0);
       setReady(false);
       try {
         setStep(1);
-        const result = await scanCardImage(uri);
+        const result = await scanCardImage(activeUri);
         if (cancelled) return;
         setStep(2);
         setDraft(draftFromOcr(result.fields, result.rawLines, result.extra));
@@ -169,7 +189,7 @@ export default function ReviewScreen() {
           if (unlocked && !cancelled) {
             try {
               setStep(1);
-              const result = await scanCardImage(uri);
+              const result = await scanCardImage(activeUri);
               if (cancelled) return;
               setStep(2);
               setDraft(draftFromOcr(result.fields, result.rawLines, result.extra));
@@ -205,7 +225,7 @@ export default function ReviewScreen() {
     return () => {
       cancelled = true;
     };
-  }, [uri, fromQr]);
+  }, [uri, fromQr, stagedParam]);
 
   function change(key: keyof Draft, value: string) {
     setDraft((prev) => ({ ...prev, [key]: value }));
@@ -311,11 +331,11 @@ export default function ReviewScreen() {
       const settings = await loadSettings();
       let cardUri: string | undefined;
       let cardUriBack: string | undefined;
-      if (uri && settings.saveCardImages) {
+      if (frontUri && settings.saveCardImages) {
         try {
-          cardUri = await persistCardImage(uri);
+          cardUri = await persistCardImage(frontUri);
         } catch {
-          cardUri = uri;
+          cardUri = frontUri;
         }
       }
       if (backUri && settings.saveCardImages) {
@@ -331,13 +351,14 @@ export default function ReviewScreen() {
           cardUri,
           cardUriBack,
           confidence,
-          source: fromQr ? 'qr' : uri ? 'scan' : undefined,
+          source: fromQr ? 'qr' : frontUri ? 'scan' : undefined,
         })
       );
       if (fromQr) {
         const { clearQrDraft } = await import('@/lib/qr-card');
         await clearQrDraft();
       }
+      await clearStagedCardImage();
 
       // Automatically sync lead to EnerTech CRM (source: EXPO)
       void (async () => {
@@ -384,6 +405,7 @@ export default function ReviewScreen() {
           if (fromQr) {
             void import('@/lib/qr-card').then(({ clearQrDraft }) => clearQrDraft());
           }
+          void clearStagedCardImage();
           dismissToHome();
         }}
       />
@@ -394,7 +416,7 @@ export default function ReviewScreen() {
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
           <ScreenBody contentStyle={styles.reviewContent}>
-            {!fromQr ? <CardPair frontUri={uri} backUri={backUri} /> : null}
+            {!fromQr ? <CardPair frontUri={frontUri} backUri={backUri} /> : null}
 
             {fromQr ? (
               <View style={styles.metaRow}>
@@ -454,7 +476,7 @@ export default function ReviewScreen() {
         </KeyboardAvoidingView>
       ) : (
         <View style={styles.processing}>
-          {uri && !fromQr ? <CardPair frontUri={uri} style={styles.processingPreview} /> : null}
+          {frontUri && !fromQr ? <CardPair frontUri={frontUri} style={styles.processingPreview} /> : null}
           <ActivityIndicator color={colors.primary} />
           {!fromQr ? (
             <View style={styles.steps}>

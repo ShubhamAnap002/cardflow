@@ -1,5 +1,22 @@
 import { Platform, Image } from 'react-native';
 
+let memoryCardImage: string | null = null;
+
+/** Stage captured card image in memory for Review screen navigation. */
+export async function stageCardImageForReview(uri: string): Promise<void> {
+  memoryCardImage = uri;
+}
+
+/** Read staged card image for Review screen. */
+export async function readStagedCardImage(): Promise<string | null> {
+  return memoryCardImage;
+}
+
+/** Clear staged card image once consumed or abandoned. */
+export async function clearStagedCardImage(): Promise<void> {
+  memoryCardImage = null;
+}
+
 /** Copy a picker/camera URI into durable app storage (on native only). */
 export async function persistCardImage(uri: string): Promise<string> {
   if (Platform.OS === 'web' || !uri) return uri;
