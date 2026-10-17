@@ -207,28 +207,43 @@ export function ContactForm({
         </View>
       </View>
 
-      {/* 2. Level: Platinum / Gold / Silver / Bronze */}
+      {/* 2. Level: Hot / Warm / Cold */}
       <View style={styles.field}>
         <Text style={styles.label}>Level</Text>
         <View style={styles.levelRow}>
-          {(['Platinum', 'Gold', 'Silver', 'Bronze'] as const).map((level) => {
-            const isSelected = draft.leadLevel === level;
+          {([
+            { id: 'Hot', label: 'Hot 🔥', activeColor: '#DC2626', activeBg: '#FEE2E2' },
+            { id: 'Warm', label: 'Warm ⚡', activeColor: '#D97706', activeBg: '#FEF3C7' },
+            { id: 'Cold', label: 'Cold ❄️', activeColor: '#2563EB', activeBg: '#DBEAFE' },
+          ] as const).map((tier) => {
+            const isSelected =
+              draft.leadLevel === tier.id ||
+              (tier.id === 'Hot' && draft.leadLevel === 'Platinum') ||
+              (tier.id === 'Warm' && draft.leadLevel === 'Gold') ||
+              (tier.id === 'Cold' && (draft.leadLevel === 'Silver' || draft.leadLevel === 'Bronze'));
             return (
               <Pressable
-                key={level}
+                key={tier.id}
                 style={[
                   styles.levelPill,
-                  isSelected && styles.levelPillActive,
+                  isSelected && {
+                    backgroundColor: tier.activeBg,
+                    borderColor: tier.activeColor,
+                    borderWidth: 1.5,
+                  },
                 ]}
-                onPress={() => onChange('leadLevel', level)}
+                onPress={() => onChange('leadLevel', tier.id)}
               >
                 <Text
                   style={[
                     styles.levelText,
-                    isSelected && styles.levelTextActive,
+                    isSelected && {
+                      color: tier.activeColor,
+                      fontWeight: '800',
+                    },
                   ]}
                 >
-                  {level}
+                  {tier.label}
                 </Text>
               </Pressable>
             );

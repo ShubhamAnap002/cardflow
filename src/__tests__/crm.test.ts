@@ -55,10 +55,11 @@ describe('CRM Integration - EnerTech Engage API', () => {
   });
 
   it('maps lead levels to priority and score correctly', () => {
+    expect(mapLeadLevelToPriorityAndScore('Hot')).toEqual({ priority: 'High', score: 90 });
+    expect(mapLeadLevelToPriorityAndScore('Warm')).toEqual({ priority: 'Medium', score: 65 });
+    expect(mapLeadLevelToPriorityAndScore('Cold')).toEqual({ priority: 'Low', score: 35 });
     expect(mapLeadLevelToPriorityAndScore('Platinum')).toEqual({ priority: 'High', score: 90 });
-    expect(mapLeadLevelToPriorityAndScore('Gold')).toEqual({ priority: 'High', score: 75 });
-    expect(mapLeadLevelToPriorityAndScore('Silver')).toEqual({ priority: 'Medium', score: 50 });
-    expect(mapLeadLevelToPriorityAndScore('Bronze')).toEqual({ priority: 'Low', score: 25 });
+    expect(mapLeadLevelToPriorityAndScore('Gold')).toEqual({ priority: 'Medium', score: 65 });
   });
 
   it('builds a valid EnerTech lead payload with source EXPO and single mobile with 91 (no +)', () => {

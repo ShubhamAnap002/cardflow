@@ -361,28 +361,33 @@ export default function ReviewScreen() {
       await clearStagedCardImage();
 
       // Automatically sync lead to EnerTech CRM (source: EXPO)
-      void (async () => {
-        try {
-          const syncRes = await syncLeadToEnerTechCrm(contact);
-          if (syncRes.ok && syncRes.leadId) {
-            await updateContact(contact.id, {
-              crmLeadId: syncRes.leadId,
-              crmSyncStatus: 'synced',
-            });
-            await removePendingCrmSync(contact.id);
-          } else {
-            await updateContact(contact.id, {
-              crmSyncStatus: 'pending',
-              crmSyncError: syncRes.error,
-            });
-            await queuePendingCrmSync(contact.id);
-          }
-        } catch {
+      let crmSuccess = false;
+      try {
+        const syncRes = await syncLeadToEnerTechCrm(contact);
+        if (syncRes.ok && syncRes.leadId) {
+          await updateContact(contact.id, {
+            crmLeadId: syncRes.leadId,
+            crmSyncStatus: 'synced',
+          });
+          await removePendingCrmSync(contact.id);
+          crmSuccess = true;
+        } else {
+          await updateContact(contact.id, {
+            crmSyncStatus: 'pending',
+            crmSyncError: syncRes.error,
+          });
           await queuePendingCrmSync(contact.id);
         }
-      })();
+      } catch {
+        await queuePendingCrmSync(contact.id);
+      }
 
-      notify(`${contact.name} saved & synced to EnerTech CRM!`);
+      if (crmSuccess) {
+        notify(`✓ ${contact.name} saved & synced to EnerTech CRM!`);
+      } else {
+        notify(`${contact.name} saved locally. CRM sync queued (offline).`);
+      }
+
       // QR saves do not use OCR quota; skip interstitial so the loop stays fast.
       if (!fromQr) void maybeShowInterstitial();
       if (andScanAnother) router.replace(fromQr ? '/scan-qr' : '/scan');

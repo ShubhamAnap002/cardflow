@@ -1,3 +1,10 @@
+import {
+  RecordingPresets,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  useAudioPlayer,
+  useAudioRecorder,
+} from 'expo-audio';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -10,6 +17,7 @@ import {
 
 import { Icon } from '@/components/icon';
 import { colors, radii, spacing, type } from '@/constants/theme';
+import { getOpenAiApiKey } from '@/lib/openai-ocr';
 
 type Props = {
   remark: string;
@@ -45,6 +53,7 @@ export function VoiceRemark({
   const [isListening, setIsListening] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [interimText, setInterimText] = useState('');
+  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Stable callback refs prevent effect teardown and recognition aborts on state updates
   const onChangeRemarkRef = useRef(onChangeRemark);
@@ -58,6 +67,10 @@ export function VoiceRemark({
   const isListeningRef = useRef(false);
   const baseTextRef = useRef('');
   const inputRef = useRef<TextInput | null>(null);
+
+  // Modern Expo Audio recorder (SDK 57 New Architecture TurboModule)
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  const player = useAudioPlayer(audioUri ? { uri: audioUri } : null);
 
   // Keep baseTextRef aligned with current text when not actively recording
   useEffect(() => {
@@ -129,12 +142,11 @@ export function VoiceRemark({
 
       rec.onerror = (event: any) => {
         const errorType = event.error || '';
-        // 'no-speech' is triggered during momentary pauses; do not abort
         if (errorType === 'no-speech') {
           return;
         }
         if (errorType === 'not-allowed' || errorType === 'permission-denied') {
-          setStatusMessage('Microphone access denied. Please allow microphone in browser settings.');
+          setStatusMessage('Microphone access denied. Please allow microphone in settings.');
           stopListening();
           return;
         }
@@ -142,7 +154,6 @@ export function VoiceRemark({
       };
 
       rec.onend = () => {
-        // Automatically restart if user hasn't explicitly clicked stop
         if (isListeningRef.current) {
           try {
             rec.start();
@@ -164,7 +175,7 @@ export function VoiceRemark({
     }
   };
 
-  const startListening = () => {
+  const startListening = async () => {
     setStatusMessage('');
     isListeningRef.current = true;
     setIsListening(true);
@@ -175,14 +186,34 @@ export function VoiceRemark({
       const rec = createAndStartRecognition();
       recognitionRef.current = rec;
     } else {
-      // 2. Real Native Mobile (Android APK / iOS)
-      // Focus text input directly so the user can use the device keyboard's native voice typing
-      inputRef.current?.focus();
-      setStatusMessage('🎙️ Tap the mic icon on your keyboard to speak in Hindi/English/any language!');
+      // 2. Real Native Mobile (Android APK / iOS) using expo-audio
+      try {
+        setStatusMessage('Requesting microphone permission...');
+        const perm = await requestRecordingPermissionsAsync();
+        if (!perm.granted) {
+          setStatusMessage('Microphone permission denied. Please allow in app settings.');
+          setIsListening(false);
+          isListeningRef.current = false;
+          return;
+        }
+
+        await setAudioModeAsync({
+          allowsRecording: true,
+          playsInSilentMode: true,
+        });
+
+        await recorder.prepareToRecordAsync();
+        recorder.record();
+        setStatusMessage('Recording voice note... speak now');
+      } catch (err: any) {
+        setStatusMessage(`Mic error: ${err?.message || 'Could not access mic'}`);
+        setIsListening(false);
+        isListeningRef.current = false;
+      }
     }
   };
 
-  const stopListening = () => {
+  const stopListening = async () => {
     isListeningRef.current = false;
     setIsListening(false);
     setInterimText('');
@@ -196,11 +227,92 @@ export function VoiceRemark({
         }
         recognitionRef.current = null;
       }
+    } else {
+      // Stop native mobile recording and transcribe
+      try {
+        await recorder.stop();
+        const uri = recorder.uri;
+        if (uri) {
+          if (onChangeAudioUriRef.current) {
+            onChangeAudioUriRef.current(uri);
+          }
+
+          // Transcribe using OpenAI Whisper API if key is present
+          const apiKey = getOpenAiApiKey();
+          if (apiKey) {
+            setStatusMessage('Transcribing voice note with AI (Whisper)...');
+            try {
+              const formData = new FormData();
+              formData.append('file', {
+                uri,
+                type: 'audio/m4a',
+                name: 'voice_note.m4a',
+              } as any);
+              formData.append('model', 'whisper-1');
+
+              const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+                method: 'POST',
+                headers: {
+                  Authorization: `Bearer ${apiKey}`,
+                },
+                body: formData,
+              });
+
+              if (res.ok) {
+                const data = await res.json();
+                if (data.text && data.text.trim()) {
+                  const cleanText = data.text.trim();
+                  const next = baseTextRef.current
+                    ? `${baseTextRef.current}\n${cleanText}`
+                    : cleanText;
+                  baseTextRef.current = next;
+                  onChangeTranscriptRef.current(next);
+                  onChangeRemarkRef.current(next);
+                  setStatusMessage('✓ Voice transcribed with AI!');
+                } else {
+                  setStatusMessage('Voice memo recorded & attached.');
+                }
+              } else {
+                setStatusMessage('Voice memo recorded & attached.');
+              }
+            } catch {
+              setStatusMessage('Voice memo recorded & attached.');
+            }
+          } else {
+            setStatusMessage('Voice memo recorded & attached.');
+          }
+        }
+      } catch (err: any) {
+        setStatusMessage(`Voice memo error: ${err?.message || ''}`);
+      }
+    }
+  };
+
+  const togglePlayAudio = () => {
+    if (!audioUri) return;
+    try {
+      if (isPlayingAudio) {
+        player.pause();
+        setIsPlayingAudio(false);
+      } else {
+        player.play();
+        setIsPlayingAudio(true);
+      }
+    } catch {
+      setIsPlayingAudio(false);
     }
   };
 
   const handleClear = () => {
     stopListening();
+    if (isPlayingAudio) {
+      try {
+        player.pause();
+      } catch {
+        // Ignore
+      }
+      setIsPlayingAudio(false);
+    }
     baseTextRef.current = '';
     setInterimText('');
     onChangeTranscriptRef.current('');
@@ -230,7 +342,7 @@ export function VoiceRemark({
             </View>
           )}
           <View style={[styles.badge, styles.badgeActive]}>
-            <Text style={[styles.badgeText, styles.badgeActiveText]}>AUTO DETECT</Text>
+            <Text style={[styles.badgeText, styles.badgeActiveText]}>AI SPEECH</Text>
           </View>
         </View>
       </View>
@@ -240,7 +352,7 @@ export function VoiceRemark({
         <View style={styles.blackBoxHeader}>
           <View style={styles.blackBoxBadges}>
             <Text style={styles.blackBoxTitle}>LIVE TRANSCRIPT</Text>
-            {isListening ? <Text style={styles.blackBoxStatus}>• LISTENING</Text> : null}
+            {isListening ? <Text style={styles.blackBoxStatus}>• RECORDING / LISTENING</Text> : null}
           </View>
           {displayedText ? (
             <Pressable onPress={handleClear} hitSlop={8} style={styles.miniClearBtn}>
@@ -253,7 +365,7 @@ export function VoiceRemark({
         <TextInput
           ref={inputRef}
           style={styles.blackBoxInput}
-          placeholder="Tap 'Speak / Record' below to dictate notes into your card..."
+          placeholder="Tap 'Speak / Record' below to speak your notes..."
           placeholderTextColor="#64748B"
           multiline
           numberOfLines={4}
@@ -265,7 +377,7 @@ export function VoiceRemark({
           }}
         />
 
-        {isListening && Platform.OS === 'web' ? (
+        {isListening ? (
           <View style={styles.listeningBar}>
             <View style={styles.soundWaveRow}>
               <View style={[styles.soundBar, styles.soundBar1]} />
@@ -316,11 +428,33 @@ export function VoiceRemark({
       {/* 4. Audio Playback attachment if recorded */}
       {audioUri ? (
         <View style={styles.audioRow}>
-          <Icon name="volume_up" size={18} color={colors.primary} />
-          <Text style={styles.audioText}>Voice memo recorded & attached</Text>
+          <Pressable
+            style={styles.playAudioBtn}
+            onPress={togglePlayAudio}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel={isPlayingAudio ? 'Pause voice memo' : 'Play voice memo'}
+          >
+            <Icon
+              name={isPlayingAudio ? 'pause' : 'play_arrow'}
+              size={18}
+              color={colors.primary}
+            />
+          </Pressable>
+          <Text style={styles.audioText}>
+            {isPlayingAudio ? 'Playing voice memo...' : 'Voice memo recorded & attached'}
+          </Text>
           <Pressable
             style={styles.clearAudioBtn}
             onPress={() => {
+              if (isPlayingAudio) {
+                try {
+                  player.pause();
+                } catch {
+                  // Ignore
+                }
+                setIsPlayingAudio(false);
+              }
               if (onChangeAudioUriRef.current) onChangeAudioUriRef.current(undefined);
             }}
             hitSlop={8}
@@ -563,6 +697,16 @@ const styles = StyleSheet.create({
     ...type.bodySm,
     fontWeight: '600',
     color: colors.primary,
+  },
+  playAudioBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.outlineVariant,
   },
   clearAudioBtn: {
     padding: 2,

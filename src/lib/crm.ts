@@ -40,16 +40,18 @@ export function mapLeadLevelToPriorityAndScore(level?: string): {
   score: number;
 } {
   switch (level?.toLowerCase()) {
+    case 'hot':
     case 'platinum':
       return { priority: 'High', score: 90 };
+    case 'warm':
     case 'gold':
-      return { priority: 'High', score: 75 };
+      return { priority: 'Medium', score: 65 };
+    case 'cold':
     case 'silver':
-      return { priority: 'Medium', score: 50 };
     case 'bronze':
-      return { priority: 'Low', score: 25 };
+      return { priority: 'Low', score: 35 };
     default:
-      return { priority: 'High', score: 80 };
+      return { priority: 'High', score: 85 };
   }
 }
 
@@ -229,7 +231,7 @@ export async function syncLeadToEnerTechCrm(
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     const res = await fetch(endpoint, {
       method: isUpdate ? 'PATCH' : 'POST',
@@ -263,6 +265,32 @@ export async function syncLeadToEnerTechCrm(
     }
 
     const leadId = json.data?.id || contact.crmLeadId;
+
+    // If duplicate lead exists on POST, immediately update it with the latest card info via PATCH
+    if (!isUpdate && json.duplicate && leadId) {
+      try {
+        const patchUrl = `${baseUrl}/api/v1/leads/${leadId}`;
+        await fetch(patchUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            name: payload.name,
+            company: payload.company,
+            phone: payload.phone,
+            email: payload.email,
+            score: payload.score,
+            notes: payload.notes,
+          }),
+        });
+      } catch {
+        // Fallback: still treat leadId as matched
+      }
+    }
+
     return { ok: true, leadId };
   } catch (err: unknown) {
     const errorMsg =

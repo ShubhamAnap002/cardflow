@@ -43,7 +43,7 @@ export type Contact = {
   /** Lead type classification: Domestic or International */
   leadType?: 'Domestic' | 'International';
   /** Lead priority tier */
-  leadLevel?: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+  leadLevel?: 'Hot' | 'Warm' | 'Cold' | 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
   /** Deal requirement scope: Bulk or Small */
   scope?: 'Bulk' | 'Small';
   /** Secondary phone number */

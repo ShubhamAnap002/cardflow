@@ -11,7 +11,7 @@ export type Draft = {
   group: string;
   note: string;
   leadType: 'Domestic' | 'International';
-  leadLevel: 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
+  leadLevel: 'Hot' | 'Warm' | 'Cold' | 'Platinum' | 'Gold' | 'Silver' | 'Bronze';
   scope: 'Bulk' | 'Small';
   phone2: string;
   email2: string;
@@ -35,7 +35,7 @@ export const EMPTY_DRAFT: Draft = {
   group: '',
   note: '',
   leadType: 'Domestic',
-  leadLevel: 'Platinum',
+  leadLevel: 'Hot',
   scope: 'Bulk',
   phone2: '',
   email2: '',
@@ -57,7 +57,7 @@ export function draftFrom(contact: Contact): Draft {
     group: contact.group ?? '',
     note: contact.note ?? '',
     leadType: contact.leadType ?? 'Domestic',
-    leadLevel: contact.leadLevel ?? 'Platinum',
+    leadLevel: (contact.leadLevel as any) ?? 'Hot',
     scope: contact.scope ?? 'Bulk',
     phone2: contact.phone2 ?? '',
     email2: contact.email2 ?? '',

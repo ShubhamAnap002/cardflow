@@ -171,7 +171,27 @@ export default function ContactDetailScreen() {
 
           <View style={styles.badges}>
             {contact.leadLevel ? (
-              <Chip label={contact.leadLevel} icon="workspace_premium" tone="success" />
+              <Chip
+                label={
+                  contact.leadLevel === 'Hot' || contact.leadLevel === 'Platinum'
+                    ? 'Hot 🔥'
+                    : contact.leadLevel === 'Warm' || contact.leadLevel === 'Gold'
+                    ? 'Warm ⚡'
+                    : 'Cold ❄️'
+                }
+                icon={
+                  contact.leadLevel === 'Hot' || contact.leadLevel === 'Platinum'
+                    ? 'bolt'
+                    : contact.leadLevel === 'Warm' || contact.leadLevel === 'Gold'
+                    ? 'speed'
+                    : 'schedule'
+                }
+                tone={
+                  contact.leadLevel === 'Hot' || contact.leadLevel === 'Platinum'
+                    ? 'warning'
+                    : 'neutral'
+                }
+              />
             ) : null}
             {contact.leadType ? (
               <Chip label={contact.leadType} icon="language" tone="neutral" />

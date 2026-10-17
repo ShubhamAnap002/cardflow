@@ -67,14 +67,19 @@ export default function EditContactScreen() {
     try {
       await updateContact(id, toContact(draft));
 
-      // Asynchronously push update to EnerTech CRM
+      // Push update to EnerTech CRM
       const updatedContact = await getContact(id);
       if (updatedContact) {
-        void syncLeadToEnerTechCrm(updatedContact).then(async (res) => {
+        try {
+          const res = await syncLeadToEnerTechCrm(updatedContact);
           if (res.ok && res.leadId) {
             await updateContact(id, { crmLeadId: res.leadId, crmSyncStatus: 'synced' });
+          } else {
+            await updateContact(id, { crmSyncStatus: 'pending', crmSyncError: res.error });
           }
-        });
+        } catch {
+          // offline
+        }
       }
 
       notify('Contact updated & synced to CRM.');
