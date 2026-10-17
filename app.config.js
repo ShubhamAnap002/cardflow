@@ -9,7 +9,7 @@ const TEST_ADMOB_IOS = 'ca-app-pub-3940256099942544~1458002511';
 const config = {
   name: 'CardFlow',
   slug: 'CardFlow',
-  version: '1.2.1',
+  version: '1.2.2',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
   scheme: 'cardflow',
@@ -17,14 +17,13 @@ const config = {
   backgroundColor: '#F8FAFC',
   android: {
     package: 'com.shubhamanap.cardflow',
-    versionCode: 3,
+    versionCode: 4,
     permissions: [
       'CAMERA',
       'READ_MEDIA_IMAGES',
       'INTERNET',
       'ACCESS_NETWORK_STATE',
       'RECORD_AUDIO',
-      'MODIFY_AUDIO_SETTINGS',
     ],
     adaptiveIcon: {
       backgroundColor: '#2563EB',
@@ -47,16 +46,10 @@ const config = {
     'expo-secure-store',
     'expo-iap',
     [
-      'expo-av',
-      {
-        microphonePermission: 'Allow CardFlow to record voice remarks and audio memos.',
-      },
-    ],
-    [
       'expo-build-properties',
       {
         android: {
-          abiFilters: ['arm64-v8a', 'armeabi-v7a', 'x86', 'x86_64'],
+          abiFilters: ['arm64-v8a', 'armeabi-v7a'],
           kotlinVersion: '2.1.20',
         },
       },
@@ -108,7 +101,7 @@ const config = {
   },
   owner: 'shubhamanap01',
   // Bare/local `android/` requires a fixed string (policy not allowed).
-  runtimeVersion: '1.2.1',
+  runtimeVersion: '1.2.2',
 };
 
 module.exports = config;

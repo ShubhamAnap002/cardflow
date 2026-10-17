@@ -1,4 +1,3 @@
-import { Audio } from 'expo-av';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -46,7 +45,6 @@ export function VoiceRemark({
   const [isListening, setIsListening] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [interimText, setInterimText] = useState('');
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
   // Stable callback refs prevent effect teardown and recognition aborts on state updates
   const onChangeRemarkRef = useRef(onChangeRemark);
@@ -57,10 +55,9 @@ export function VoiceRemark({
   onChangeAudioUriRef.current = onChangeAudioUri;
 
   const recognitionRef = useRef<IWindowSpeechRecognition | null>(null);
-  const nativeRecordingRef = useRef<Audio.Recording | null>(null);
-  const soundPlaybackRef = useRef<Audio.Sound | null>(null);
   const isListeningRef = useRef(false);
   const baseTextRef = useRef('');
+  const inputRef = useRef<TextInput | null>(null);
 
   // Keep baseTextRef aligned with current text when not actively recording
   useEffect(() => {
@@ -69,7 +66,7 @@ export function VoiceRemark({
     }
   }, [remark, voiceTranscript]);
 
-  // Teardown speech recognition and recorder cleanly on unmount
+  // Teardown speech recognition cleanly on unmount
   useEffect(() => {
     return () => {
       isListeningRef.current = false;
@@ -79,12 +76,6 @@ export function VoiceRemark({
         } catch {
           // Ignore
         }
-      }
-      if (nativeRecordingRef.current) {
-        nativeRecordingRef.current.stopAndUnloadAsync().catch(() => {});
-      }
-      if (soundPlaybackRef.current) {
-        soundPlaybackRef.current.unloadAsync().catch(() => {});
       }
     };
   }, []);
@@ -151,7 +142,7 @@ export function VoiceRemark({
       };
 
       rec.onend = () => {
-        // Automatically restart if user hasn't explicitly clicked stop (e.g., silence timeout on mobile Chrome)
+        // Automatically restart if user hasn't explicitly clicked stop
         if (isListeningRef.current) {
           try {
             rec.start();
@@ -173,47 +164,25 @@ export function VoiceRemark({
     }
   };
 
-  const startListening = async () => {
+  const startListening = () => {
     setStatusMessage('');
     isListeningRef.current = true;
     setIsListening(true);
     baseTextRef.current = remark || voiceTranscript || '';
 
     if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      // 1. Start live speech-to-text recognition on web (100% Free)
+      // 1. Live Web Speech Recognition (Free, real-time in-browser)
       const rec = createAndStartRecognition();
       recognitionRef.current = rec;
     } else {
-      // 2. Real Native Mobile (Android APK) - Recording via expo-av
-      try {
-        setStatusMessage('Requesting microphone permission...');
-        const perm = await Audio.requestPermissionsAsync();
-        if (perm.status !== 'granted') {
-          setStatusMessage('Microphone permission denied. Please allow microphone in settings.');
-          setIsListening(false);
-          isListeningRef.current = false;
-          return;
-        }
-
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: true,
-          playsInSilentModeIOS: true,
-        });
-
-        const recording = new Audio.Recording();
-        await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
-        await recording.startAsync();
-        nativeRecordingRef.current = recording;
-        setStatusMessage('Recording voice note... speak now');
-      } catch (err: any) {
-        setStatusMessage(`Mic error: ${err?.message || 'Could not access microphone'}`);
-        setIsListening(false);
-        isListeningRef.current = false;
-      }
+      // 2. Real Native Mobile (Android APK / iOS)
+      // Focus text input directly so the user can use the device keyboard's native voice typing
+      inputRef.current?.focus();
+      setStatusMessage('🎙️ Tap the mic icon on your keyboard to speak in Hindi/English/any language!');
     }
   };
 
-  const stopListening = async () => {
+  const stopListening = () => {
     isListeningRef.current = false;
     setIsListening(false);
     setInterimText('');
@@ -227,118 +196,11 @@ export function VoiceRemark({
         }
         recognitionRef.current = null;
       }
-    } else {
-      // Stop native mobile recording and process audio
-      if (nativeRecordingRef.current) {
-        const recording = nativeRecordingRef.current;
-        nativeRecordingRef.current = null;
-        try {
-          await recording.stopAndUnloadAsync();
-          const uri = recording.getURI();
-          if (uri) {
-            if (onChangeAudioUriRef.current) {
-              onChangeAudioUriRef.current(uri);
-            }
-
-            // If OpenAI API key is configured, transcribe with Whisper AI
-            const apiKey = process.env.EXPO_PUBLIC_OPENAI_API_KEY;
-            if (apiKey) {
-              setStatusMessage('Transcribing voice note with AI...');
-              try {
-                const formData = new FormData();
-                formData.append('file', {
-                  uri,
-                  type: 'audio/m4a',
-                  name: 'voice_note.m4a',
-                } as any);
-                formData.append('model', 'whisper-1');
-
-                const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-                  method: 'POST',
-                  headers: {
-                    Authorization: `Bearer ${apiKey}`,
-                  },
-                  body: formData,
-                });
-
-                if (res.ok) {
-                  const data = await res.json();
-                  if (data.text && data.text.trim()) {
-                    const cleanText = data.text.trim();
-                    const next = baseTextRef.current
-                      ? `${baseTextRef.current}\n${cleanText}`
-                      : cleanText;
-                    baseTextRef.current = next;
-                    onChangeTranscriptRef.current(next);
-                    onChangeRemarkRef.current(next);
-                    setStatusMessage('Voice transcribed successfully!');
-                  } else {
-                    setStatusMessage('Voice memo recorded & attached.');
-                  }
-                } else {
-                  setStatusMessage('Voice memo recorded & attached.');
-                }
-              } catch {
-                setStatusMessage('Voice memo recorded & attached.');
-              }
-            } else {
-              setStatusMessage('Voice memo recorded & attached.');
-            }
-          }
-        } catch (err: any) {
-          setStatusMessage(`Voice memo error: ${err?.message || ''}`);
-        }
-      }
-    }
-  };
-
-  const togglePlayAudio = async () => {
-    if (!audioUri) return;
-    try {
-      if (isPlayingAudio && soundPlaybackRef.current) {
-        await soundPlaybackRef.current.pauseAsync();
-        setIsPlayingAudio(false);
-        return;
-      }
-
-      if (soundPlaybackRef.current) {
-        await soundPlaybackRef.current.unloadAsync();
-        soundPlaybackRef.current = null;
-      }
-
-      const { sound } = await Audio.Sound.createAsync(
-        { uri: audioUri },
-        { shouldPlay: true }
-      );
-      soundPlaybackRef.current = sound;
-      setIsPlayingAudio(true);
-
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status.isLoaded && status.didJustFinish) {
-          setIsPlayingAudio(false);
-        }
-      });
-    } catch {
-      setIsPlayingAudio(false);
-    }
-  };
-
-  const stopAudioPlayback = async () => {
-    if (soundPlaybackRef.current) {
-      try {
-        await soundPlaybackRef.current.stopAsync();
-        await soundPlaybackRef.current.unloadAsync();
-      } catch {
-        // Ignore
-      }
-      soundPlaybackRef.current = null;
-      setIsPlayingAudio(false);
     }
   };
 
   const handleClear = () => {
     stopListening();
-    stopAudioPlayback();
     baseTextRef.current = '';
     setInterimText('');
     onChangeTranscriptRef.current('');
@@ -389,8 +251,9 @@ export function VoiceRemark({
         </View>
 
         <TextInput
+          ref={inputRef}
           style={styles.blackBoxInput}
-          placeholder="Tap 'Speak / Record' below and talk into your microphone — your spoken words will appear here in real time..."
+          placeholder="Tap 'Speak / Record' below to dictate notes into your card..."
           placeholderTextColor="#64748B"
           multiline
           numberOfLines={4}
@@ -402,7 +265,7 @@ export function VoiceRemark({
           }}
         />
 
-        {isListening ? (
+        {isListening && Platform.OS === 'web' ? (
           <View style={styles.listeningBar}>
             <View style={styles.soundWaveRow}>
               <View style={[styles.soundBar, styles.soundBar1]} />
@@ -453,26 +316,11 @@ export function VoiceRemark({
       {/* 4. Audio Playback attachment if recorded */}
       {audioUri ? (
         <View style={styles.audioRow}>
-          <Pressable
-            style={styles.playAudioBtn}
-            onPress={togglePlayAudio}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel={isPlayingAudio ? 'Pause voice memo' : 'Play voice memo'}
-          >
-            <Icon
-              name={isPlayingAudio ? 'pause' : 'play_arrow'}
-              size={18}
-              color={colors.primary}
-            />
-          </Pressable>
-          <Text style={styles.audioText}>
-            {isPlayingAudio ? 'Playing voice memo...' : 'Voice memo recorded & attached'}
-          </Text>
+          <Icon name="volume_up" size={18} color={colors.primary} />
+          <Text style={styles.audioText}>Voice memo recorded & attached</Text>
           <Pressable
             style={styles.clearAudioBtn}
             onPress={() => {
-              stopAudioPlayback();
               if (onChangeAudioUriRef.current) onChangeAudioUriRef.current(undefined);
             }}
             hitSlop={8}
@@ -716,23 +564,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: colors.primary,
   },
-  playAudioBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: colors.outlineVariant,
-  },
   clearAudioBtn: {
     padding: 2,
   },
   statusText: {
     fontSize: 12,
-    color: '#DC2626',
-    fontWeight: '500',
+    color: colors.primary,
+    fontWeight: '600',
     marginTop: 2,
   },
 });
